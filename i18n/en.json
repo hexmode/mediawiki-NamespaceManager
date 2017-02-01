@@ -1,0 +1,9 @@
+{
+    "@metadata": {
+	"authors": [
+	    "Mark A. Hershberger"
+	]
+    },
+    "nsmgr-extensionname": "Namespace Manager",
+    "nsmgr-desc": "Provide a special page to handle namespaces."
+}
