@@ -22,78 +22,78 @@ namespace NamespaceManager;
 use Title;
 
 class Hook {
-    static public function onNamespaceIsMovable( $index, &$result ) {
-    }
+	static public function onNamespaceIsMovable( $index, &$result ) {
+	}
 
-    static public function onSearchableNamespaces( array &$ns ) {
-    }
+	static public function onSearchableNamespaces( array &$ns ) {
+	}
 
-    static protected function getNSConfig() {
+	static protected function getNSConfig() {
 		global $IP;
-        return json_decode( file_get_contents( "$IP/ns.json" ) );
-    }
+		return json_decode( file_get_contents( "$IP/ns.json" ) );
+	}
 
-    static public function init( ) {
+	static public function init( ) {
 		global $smwgNamespacesWithSemanticLinks;
-        global $wgContentNamespaces;
-        global $wgExtraNamespaces;
-        global $wgGroupPermissions;
-        global $wgNamespaceAliases;
-        global $wgNamespaceHideFromRC;
-        global $wgNamespaceProtection;
-        global $wgNamespaceRestriction;
-        global $wgNamespacesToBeSearchedDefault;
-        global $wgNamespacesWithSubpages;
-        global $wgNonincludableNamespaces;
-        global $wgVisualEditorAvailableNamespaces;
+		global $wgContentNamespaces;
+		global $wgExtraNamespaces;
+		global $wgGroupPermissions;
+		global $wgNamespaceAliases;
+		global $wgNamespaceHideFromRC;
+		global $wgNamespaceProtection;
+		global $wgNamespaceRestriction;
+		global $wgNamespacesToBeSearchedDefault;
+		global $wgNamespacesWithSubpages;
+		global $wgNonincludableNamespaces;
+		global $wgVisualEditorAvailableNamespaces;
 
-        $nsConf = self::getNSConfig();
+		$nsConf = self::getNSConfig();
 
-        foreach( $nsConf as $nsName => $conf ) {
-            $const = $conf->number;
-            $talkConst = $conf->number + 1;
-            $permission = isset( $conf->permission ) ? $conf->permission : null;
-			$group = $conf->group;
+		foreach( $nsConf as $nsName => $conf ) {
+			$const = $conf->number;
+			$talkConst = $conf->number + 1;
+			$permission = isset( $conf->permission ) ? $conf->permission : null;
+			$group = isset( $conf->group ) ? $conf->group : null;
 
-            if ( $group && $permission !== null ) {
-                $wgGroupPermissions['*'][$permission] = false;
-                $wgGroupPermissions[ $group ][$permission] = true;
-                $wgGroupPermissions[ 'ksteam' ][$permission] = true;
+			if ( $group && $permission !== null ) {
+				$wgGroupPermissions['*'][$permission] = false;
+				$wgGroupPermissions[ $group ][$permission] = true;
+				$wgGroupPermissions[ 'ksteam' ][$permission] = true;
 				$wgNamespaceProtection[ $const ][] = $permission;
 				$wgNamespaceProtection[ $talkConst ][] = $permission;
 				$wgNamespaceRestriction[ $const ] = $permission;
 				$wgNamespaceRestriction[ $talkConst ] = $permission;
-            }
+			}
 
-            define( $conf->const, $const );
-            define( $conf->const . "_TALK", $talkConst );
+			define( $conf->const, $const );
+			define( $conf->const . "_TALK", $talkConst );
 
-            $wgExtraNamespaces[ $const ] = $nsName;
-            $wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
-            foreach( $conf->alias as $alias ) {
-                $wgNamespaceAliases[ $alias ] = $const;
-                $wgNamespaceAliases[ "{$alias}_talk" ] = $talkConst;
-                $wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
-            }
-            $wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
+			$wgExtraNamespaces[ $const ] = $nsName;
+			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
+			foreach( $conf->alias as $alias ) {
+				$wgNamespaceAliases[ $alias ] = $const;
+				$wgNamespaceAliases[ "{$alias}_talk" ] = $talkConst;
+				$wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
+			}
+			$wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
 
-            $wgNamespaceHideFromRC[] = $const;
-            $wgNamespaceHideFromRC[] = $talkConst;
+			$wgNamespaceHideFromRC[] = $const;
+			$wgNamespaceHideFromRC[] = $talkConst;
 
-            $wgNonincludableNamespaces[] = $const;
-            $wgNonincludableNamespaces[] = $talkConst;
+			$wgNonincludableNamespaces[] = $const;
+			$wgNonincludableNamespaces[] = $talkConst;
 
-            $wgContentNamespaces[] = $const;
-            $wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
-            $smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
+			$wgContentNamespaces[] = $const;
+			$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
+			$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
 
-            $wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
-        }
-    }
+			$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+		}
+	}
 
-    static public function onEditPageTosSummary( Title $title,  &$msg ) {
-    }
+	static public function onEditPageTosSummary( Title $title,  &$msg ) {
+	}
 
-    static public function onEditPageCopyrightWarning( Title $title, &$msg ) {
-    }
+	static public function onEditPageCopyrightWarning( Title $title, &$msg ) {
+	}
 }
