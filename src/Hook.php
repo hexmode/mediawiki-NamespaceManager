@@ -50,6 +50,9 @@ class Hook {
 		$nsConf = self::getNSConfig();
 
 		foreach( $nsConf as $nsName => $conf ) {
+			if ( !isset( $conf->number ) ) {
+				throw new MWException( "ns.json needs a number set for '$nsName'." );
+			}
 			$const = $conf->number;
 			$talkConst = $conf->number + 1;
 			$permission = isset( $conf->permission ) ? $conf->permission : null;
@@ -63,6 +66,12 @@ class Hook {
 				$wgNamespaceProtection[ $talkConst ][] = $permission;
 				$wgNamespaceRestriction[ $const ] = $permission;
 				$wgNamespaceRestriction[ $talkConst ] = $permission;
+				// Would like to have this but then you can't include
+				// them from your own NS
+				// $wgNonincludableNamespaces[] = $const;
+				// $wgNonincludableNamespaces[] = $talkConst;
+				$wgNamespaceHideFromRC[] = $const;
+				$wgNamespaceHideFromRC[] = $talkConst;
 			}
 
 			define( $conf->const, $const );
@@ -70,24 +79,28 @@ class Hook {
 
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
-			foreach( $conf->alias as $alias ) {
-				$wgNamespaceAliases[ $alias ] = $const;
-				$wgNamespaceAliases[ "{$alias}_talk" ] = $talkConst;
-				$wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
+			if ( isset( $conf->alias ) && is_array( $conf->alias ) ) {
+				foreach( $conf->alias as $alias ) {
+					$wgNamespaceAliases[ $alias ] = $const;
+					$wgNamespaceAliases[ "{$alias}_talk" ] = $talkConst;
+					$wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
+				}
 			}
-			$wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
-
-			$wgNamespaceHideFromRC[] = $const;
-			$wgNamespaceHideFromRC[] = $talkConst;
-
-			$wgNonincludableNamespaces[] = $const;
-			$wgNonincludableNamespaces[] = $talkConst;
+			if ( isset( $conf->hasSubpages ) ) {
+				$wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
+			}
 
 			$wgContentNamespaces[] = $const;
-			$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
-			$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
+			if ( isset( $conf->useVE ) ) {
+				$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
+			}
+			if ( isset( $conf->useSMW ) ) {
+				$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
+			}
 
-			$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+			if ( isset( $conf->defaultSearch ) ) {
+				$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+			}
 		}
 	}
 
