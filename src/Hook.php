@@ -86,7 +86,7 @@ class Hook {
 					$wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
 				}
 			}
-			if ( isset( $conf->hasSubpages ) ) {
+			if ( isset( $conf->hasSubpage ) ) {
 				$wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
 			}
 
