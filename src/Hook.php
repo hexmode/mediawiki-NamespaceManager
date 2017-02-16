@@ -41,7 +41,6 @@ class Hook {
 		global $wgNamespaceAliases;
 		global $wgNamespaceHideFromRC;
 		global $wgNamespaceProtection;
-		global $wgNamespaceRestriction;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
 		global $wgNonincludableNamespaces;
