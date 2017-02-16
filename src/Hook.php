@@ -20,6 +20,7 @@
 namespace NamespaceManager;
 
 use Title;
+use MWException;
 
 class Hook {
 	static public function onNamespaceIsMovable( $index, &$result ) {
