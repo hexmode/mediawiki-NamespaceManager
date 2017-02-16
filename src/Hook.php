@@ -49,7 +49,14 @@ class Hook {
 
 		$nsConf = self::getNSConfig();
 
+		if ( !isset( $nsConf->globalAdmin ) ) {
+			throw new MWException( "A Global Admin group needs to be set." );
+		}
+		$adminGroup = $nsConf->globalAdmin;
 		foreach( $nsConf as $nsName => $conf ) {
+			if ( $nsName == "globalAdmin" ) {
+				continue;
+			}
 			if ( !isset( $conf->number ) ) {
 				throw new MWException( "ns.json needs a number set for '$nsName'." );
 			}
@@ -61,17 +68,19 @@ class Hook {
 			if ( $group && $permission !== null ) {
 				$wgGroupPermissions['*'][$permission] = false;
 				$wgGroupPermissions[ $group ][$permission] = true;
-				$wgGroupPermissions[ 'ksteam' ][$permission] = true;
+				$wgGroupPermissions[ $adminGroup ][$permission] = true;
 				$wgNamespaceProtection[ $const ][] = $permission;
 				$wgNamespaceProtection[ $talkConst ][] = $permission;
-				$wgNamespaceRestriction[ $const ] = $permission;
-				$wgNamespaceRestriction[ $talkConst ] = $permission;
 				// Would like to have this but then you can't include
 				// them from your own NS
 				// $wgNonincludableNamespaces[] = $const;
 				// $wgNonincludableNamespaces[] = $talkConst;
 				$wgNamespaceHideFromRC[] = $const;
 				$wgNamespaceHideFromRC[] = $talkConst;
+				if ( isset( $conf->lockdown ) && $conf->lockdown ) {
+					$wgNamespacePermissionLockdown[ $const ][ 'read' ] = [ $group, $adminGroup ];
+					$wgNamespacePermissionLockdown[ $talkConst ][ 'read' ] = [ $group, $adminGroup ];
+				}
 			}
 
 			define( $conf->const, $const );
