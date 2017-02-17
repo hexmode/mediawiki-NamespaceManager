@@ -41,6 +41,7 @@ class Hook {
 		global $wgGroupPermissions;
 		global $wgNamespaceAliases;
 		global $wgNamespaceHideFromRC;
+		global $wgNamespacePermissionLockdown;
 		global $wgNamespaceProtection;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
@@ -77,9 +78,15 @@ class Hook {
 				// $wgNonincludableNamespaces[] = $talkConst;
 				$wgNamespaceHideFromRC[] = $const;
 				$wgNamespaceHideFromRC[] = $talkConst;
-				if ( isset( $conf->lockdown ) && $conf->lockdown ) {
-					$wgNamespacePermissionLockdown[ $const ][ 'read' ] = [ $group, $adminGroup ];
-					$wgNamespacePermissionLockdown[ $talkConst ][ 'read' ] = [ $group, $adminGroup ];
+				if ( isset( $conf->lockdown ) && is_array( $conf->lockdown ) ) {
+					$wgNamespacePermissionLockdown[ $const ][ '*' ] = [ $adminGroup ];
+					$wgNamespacePermissionLockdown[ $talkConst ][ '*' ] = [ $adminGroup ];
+					foreach ( $conf->lockdown as $perm ) {
+						$wgNamespacePermissionLockdown[ $const ][ $perm ]
+							= [ $group, $adminGroup ];
+						$wgNamespacePermissionLockdown[ $talkConst ][ $perm ]
+							= [ $group, $adminGroup ];
+					}
 				}
 			}
 
