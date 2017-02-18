@@ -47,6 +47,7 @@ class Hook {
 		global $wgNamespacesWithSubpages;
 		global $wgNonincludableNamespaces;
 		global $wgVisualEditorAvailableNamespaces;
+		global $wgCollectionArticleNamespaces;
 
 		$nsConf = self::getNSConfig();
 
@@ -116,6 +117,10 @@ class Hook {
 
 			if ( isset( $conf->defaultSearch ) ) {
 				$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+			}
+
+			if ( isset( $conf->useSMW ) && $conf->useSMW ) {
+				$wgCollectionArticleNamespaces[] = $const;
 			}
 		}
 	}
