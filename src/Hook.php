@@ -40,6 +40,7 @@ class Hook {
 		global $wgExtraNamespaces;
 		global $wgGroupPermissions;
 		global $wgNamespaceAliases;
+		global $wgNamespaceContentModels;
 		global $wgNamespaceHideFromRC;
 		global $wgNamespacePermissionLockdown;
 		global $wgNamespaceProtection;
@@ -113,6 +114,10 @@ class Hook {
 			}
 			if ( isset( $conf->useSMW ) ) {
 				$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
+			}
+
+			if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
+				$wgNamespaceContentModels[$talkConst] = 'flow-board';
 			}
 
 			if ( isset( $conf->defaultSearch ) ) {
