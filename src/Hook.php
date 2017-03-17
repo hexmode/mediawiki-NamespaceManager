@@ -124,7 +124,7 @@ class Hook {
 				$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
 			}
 
-			if ( isset( $conf->useSMW ) && $conf->useSMW ) {
+			if ( isset( $conf->useCollection ) && $conf->useCollection ) {
 				$wgCollectionArticleNamespaces[] = $const;
 			}
 		}
