@@ -13,6 +13,7 @@
 *~
 \#*#
 .#*
+.tramp_history
 .*.swp
 .project
 cscope.files
