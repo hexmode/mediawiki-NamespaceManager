@@ -92,8 +92,18 @@ class Hook {
 				}
 			}
 
-			define( $conf->const, $const );
-			define( $conf->const . "_TALK", $talkConst );
+			if ( !defined( $conf->const ) ) {
+				define( $conf->const, $const );
+			} else if ( eval( "return $const !== {$conf->const};" ) ) {
+				throw new MWException( $conf->const . " must be set to " . $const );
+			}
+
+			$talkConstName = $conf->const . "_TALK";
+			if ( !defined( $talkConstName ) ) {
+				define( $talkConstName, $talkConst );
+			} else if ( eval( "return $talkConstName !== $talkConst;" ) ) {
+				throw new MWException( $talkConstName . " must be set to " . $talkConst );
+			}
 
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
