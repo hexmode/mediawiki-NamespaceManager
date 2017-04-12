@@ -36,18 +36,40 @@ use stdClass;
  * @ingroup Maintenance
  */
 class ConfigDumper extends Maintenance {
+	protected $nsConf;
 
 	/**
 	 * A constructor for ye
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Dump out all the current settings that NameaspaceManager " .
+		$this->mDescription = "Read all the current settings that NameaspaceManager " .
 							"will handle for all namespaces";
+
+		$this->addOption( "json", "Output a json file that could be read in.",
+						  false, false, "j" );
+		$this->addOption( "var", "Show the php config of a given variable.",
+						  false, true, "v" );
+		$this->nsConf = new stdClass();
 	}
 
 	public function execute() {
-		global $smwgNamespacesWithSemanticLinks;
+		if ( $this->getOption( "json" ) ) {
+			$this->loadNSConfig();
+			$this->output( json_encode( $this->nsConf, JSON_PRETTY_PRINT ) . "\n" );
+			return;
+		}
+		if ( $var = $this->getOption( "var" ) ) {
+			$this->output( "\$$var = " .
+						   eval( "global \$$var; return var_export( \$$var, true);" )
+						   . "\n" );
+			return;
+		}
+		$this->maybeHelp( true );
+	}
+
+	public function loadNSConfig() {
+		global $wgCollectionArticleNamespaces;
 		global $wgContentNamespaces;
 		global $wgExtraNamespaces;
 		global $wgGroupPermissions;
@@ -57,16 +79,16 @@ class ConfigDumper extends Maintenance {
 		global $wgNamespacePermissionLockdown;
 		global $wgNamespaceProtection;
 		global $wgNamespacesToBeSearchedDefault;
+		global $smwgNamespacesWithSemanticLinks;
 		global $wgNamespacesWithSubpages;
 		global $wgNonincludableNamespaces;
 		global $wgVisualEditorAvailableNamespaces;
-		global $wgCollectionArticleNamespaces;
+		global $wgCirrusSearchNamespaceWeights;
 
 		$ignoreNamespaces = [ 'Form', 'Gadget', 'Gadget_definition', 'Concept',
 							  'Campaign', 'Property', 'Widget' ];
 
 		$adminGroup = null;
-		$nsConf = new stdClass();
 
 		$allConst = get_defined_constants(true);
 		$nsConst = array_flip(
@@ -101,24 +123,24 @@ class ConfigDumper extends Maintenance {
 			}
 
 			$talkConst = $const + 1;
-			$nsConf->$name = new stdClass();
-			$nsConf->$name->number = $const;
+			$this->nsConf->$name = new stdClass();
+			$this->nsConf->$name->number = $const;
 
-			$nsConf->$name->useCollection = false;
+			$this->nsConf->$name->useCollection = false;
 			if ( isset( $nsCollection[$const] ) ) {
-				$nsConf->$name->useCollection = true;
+				$this->nsConf->$name->useCollection = true;
 			}
 
 			if ( isset( $nsConst[$const] ) ) {
-				$nsConf->$name->const = $nsConst[$const];
+				$this->nsConf->$name->const = $nsConst[$const];
 			}
 
 			if ( isset( $wgVisualEditorAvailableNamespaces[$const] ) ) {
-				$nsConf->$name->useVE = $wgVisualEditorAvailableNamespaces[$const];
+				$this->nsConf->$name->useVE = $wgVisualEditorAvailableNamespaces[$const];
 			}
 
 			if ( isset( $smwgNamespacesWithSemanticLinks[$const] ) ) {
-				$nsConf->$name->useSMW = $smwgNamespacesWithSemanticLinks[$const];
+				$this->nsConf->$name->useSMW = $smwgNamespacesWithSemanticLinks[$const];
 			}
 
 			if ( isset( $conf->useSMW ) && $conf->useSMW ) {
@@ -127,17 +149,17 @@ class ConfigDumper extends Maintenance {
 
 			if ( isset( $wgNamespaceContentModels[$talkConst] )
 				 && $wgNamespaceContentModels[$talkConst] == 'flow-board' ) {
-				$nsConf->$name->useFlowForTalk = true;
+				$this->nsConf->$name->useFlowForTalk = true;
 			}
 
 			if ( isset( $wgNamespacesToBeSearchedDefault[$const] ) ) {
-				$nsConf->$name->defaultSearch = $wgNamespacesToBeSearchedDefault[$const];
+				$this->nsConf->$name->defaultSearch = $wgNamespacesToBeSearchedDefault[$const];
 			}
 
-			$nsConf->$name->permission = null;
+			$this->nsConf->$name->permission = null;
 			if ( isset( $wgNamespaceProtection[$const] ) ) {
 				if ( count( $wgNamespaceProtection[$const] ) === 1 ) {
-					$nsConf->$name->permission = $wgNamespaceProtection[$const][0];
+					$this->nsConf->$name->permission = $wgNamespaceProtection[$const][0];
 				} else {
 					throw new MWException( "Can only handle one permission for now in ".
 										   "wgNamespaceProtection! Found " .
@@ -146,14 +168,14 @@ class ConfigDumper extends Maintenance {
 				}
 			}
 
-			$nsConf->$name->group = null;
-			$nsConf->$name->lockdown = false;
+			$this->nsConf->$name->group = null;
+			$this->nsConf->$name->lockdown = false;
 			if ( isset( $wgNamespacePermissionLockdown[$const] ) ) {
 				foreach ( $wgNamespacePermissionLockdown[$const] as $perm => $groups ) {
 					if ( $perm === '*' && count( $groups ) === 1 ) {
 						if ( $adminGroup === null || $adminGroup === $groups[0] ) {
 							$adminGroup = $groups[0];
-							$nsConf->globalAdmin = $adminGroup;
+							$this->nsConf->globalAdmin = $adminGroup;
 							continue;
 						} else {
 							throw new MWException( "New admin group ({$groups[0]}) " .
@@ -181,38 +203,45 @@ class ConfigDumper extends Maintenance {
 					}
 
 					if ( $perm !== '*' ) {
-						$nsConf->$name->lockdown[] = $perm;
-						$nsConf->$name->group = $group;
+						$this->nsConf->$name->lockdown[] = $perm;
+						$this->nsConf->$name->group = $group;
 					}
 				}
 			}
 
-			$nsConf->$name->alias = [];
+			$this->nsConf->$name->alias = [];
 			if ( isset( $nsAlias[$const] ) ) {
-				$nsConf->$name->alias = $nsAlias[$const];
+				$this->nsConf->$name->alias = $nsAlias[$const];
 			}
 
 			if ( isset( $wgNamespacesWithSubpages[ $const ] ) ) {
-				$nsConf->$name->hasSubpage = $wgNamespacesWithSubpages[ $const ];
+				$this->nsConf->$name->hasSubpage = $wgNamespacesWithSubpages[ $const ];
 			}
 
-			if ( $nsConf->$name->group === null && $nsConf->$name->permission !== null
-				 && isset( $permMap[$nsConf->$name->permission] ) ) {
+			if ( $this->nsConf->$name->group === null && $this->nsConf->$name->permission !== null
+				 && isset( $permMap[$this->nsConf->$name->permission] ) ) {
 				$permGroup = array_filter(
-					array_keys( array_filter( $permMap[$nsConf->$name->permission] ) ),
+					array_keys( array_filter( $permMap[$this->nsConf->$name->permission] ) ),
 					function( $group ) use ( $adminGroup ) {
 						return $group !== $adminGroup;
 					} );
 				if( count( $permGroup ) > 1 ) {
 					var_dump( $permGroup );
 					throw new MWException( "More than one group with " .
-										   $nsConf->$name->permission . " permission." );
+										   $this->nsConf->$name->permission . " permission." );
 				}
-				$nsConf->$name->group = array_shift( $permGroup );
+				$this->nsConf->$name->group = array_shift( $permGroup );
+            }
+
+			if ( isset( $wgCirrusSearchNamespaceWeights ) ) {
+				$this->nsConf->$name->searchWeight = null;
+				if ( isset( $wgCirrusSearchNamespaceWeights[$const] ) ) {
+					$this->nsConf->$name->searchWeight
+						= $wgCirrusSearchNamespaceWeights[$const];
+				}
 			}
 		}
-		$this->output( json_encode( $nsConf, JSON_PRETTY_PRINT ) . "\n" );
-   }
+	}
 }
 
 $maintClass = "NamespaceManager\\ConfigDumper";

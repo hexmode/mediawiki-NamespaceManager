@@ -1,0 +1,26 @@
+== NamespaceManager ==
+
+This module provides a single place to manage the configuration for all namespace related variables.
+
+=== Adding a setting ===
+
+I recommend you add a setting by using the maintenance script dumpNSInfo.php to find the current settings that you want to have managed.  This will help you determine how to set up their use in the extension.
+
+For example, I want to put <code>$wgCirrusSearchNamespaceWeights</code> under management via the <code>searchWeight</code> key.  First, I write ths bit of code inside the end of the loop in dumpNSInfo.php:
+<syntaxhightlight lang="php">
+                if ( isset( $wgCirrusSearchNamespaceWeights ) ) {
+                    $nsConf->$name->searchWeight = null;
+                    if ( isset( $wgCirrusSearchNamespaceWeights[$const] ) ) {
+                        $nsConf->$name->searchWeight
+                            = $wgCirrusSearchNamespaceWeights[$const];
+                    }
+                }
+</syntaxhighlight>
+
+The initial <code>if( isset(…</code> check verifies that there is actually a variable we can adjust.  This is needed because other people using the extension may not have CirrusSearch installed.
+
+The next line sets the value for the ns to null as default.  In the coorespodning load  code, we will just skip the setting if the configuration for this variable is null.
+
+The second <code>if( isset(…</code> checks to see if anything is set for this namespace.  If there is, then the value is given to the <code>searchWeight</code> key.
+
+Now, we run 
