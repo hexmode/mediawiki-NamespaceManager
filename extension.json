@@ -28,6 +28,9 @@
 		],
 		"EditPageCopyrightWarning": [
 			"NamespaceManager\\Hook::onEditPageCopyrightWarning"
+		],
+		"ChangesListSpecialPageQuery": [
+			"NamespaceManager\\Hook::onChangesListSpecialPageQuery"
 		]
 	},
 	"callback": "NamespaceManager\\Hook::init",

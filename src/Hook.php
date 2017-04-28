@@ -140,6 +140,20 @@ class Hook {
 		}
 	}
 
+	static public function onChangesListSpecialPageQuery(
+		$name, &$tables, &$fields, &$conds, &$query_options, &$join_conds, $opts
+	) {
+		global $wgNamespaceHideFromRC;
+
+		if( $name === "Recentchanges" ) {
+			if ( count( $wgNamespaceHideFromRC  ) ) {
+				$conds[] = 'rc_namespace NOT IN (' .
+						 implode( ", ", $wgNamespaceHideFromRC ) . ')';
+			}
+		}
+		return true;
+	}
+
 	static public function onEditPageTosSummary( Title $title,  &$msg ) {
 	}
 
