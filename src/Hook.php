@@ -49,6 +49,7 @@ class Hook {
 		global $wgNonincludableNamespaces;
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCollectionArticleNamespaces;
+		global $egApprovedRevsNamespaces;
 
 		$nsConf = self::getNSConfig();
 
@@ -61,7 +62,9 @@ class Hook {
 				continue;
 			}
 			if ( !isset( $conf->number ) ) {
-				throw new MWException( "ns.json needs a number set for '$nsName'." );
+				throw new MWException(
+					"ns.json needs a number set for '$nsName'."
+				);
 			}
 			$const = $conf->number;
 			$talkConst = $conf->number + 1;
@@ -81,8 +84,10 @@ class Hook {
 				$wgNamespaceHideFromRC[] = $const;
 				$wgNamespaceHideFromRC[] = $talkConst;
 				if ( isset( $conf->lockdown ) && is_array( $conf->lockdown ) ) {
-					$wgNamespacePermissionLockdown[ $const ][ '*' ] = [ $adminGroup ];
-					$wgNamespacePermissionLockdown[ $talkConst ][ '*' ] = [ $adminGroup ];
+					$wgNamespacePermissionLockdown[ $const ][ '*' ]
+						= [ $adminGroup ];
+					$wgNamespacePermissionLockdown[ $talkConst ][ '*' ]
+						= [ $adminGroup ];
 					foreach ( $conf->lockdown as $perm ) {
 						$wgNamespacePermissionLockdown[ $const ][ $perm ]
 							= [ $group, $adminGroup ];
@@ -95,14 +100,18 @@ class Hook {
 			if ( !defined( $conf->const ) ) {
 				define( $conf->const, $const );
 			} else if ( eval( "return $const !== {$conf->const};" ) ) {
-				throw new MWException( $conf->const . " must be set to " . $const );
+				throw new MWException(
+					$conf->const . " must be set to " . $const
+				);
 			}
 
 			$talkConstName = $conf->const . "_TALK";
 			if ( !defined( $talkConstName ) ) {
 				define( $talkConstName, $talkConst );
 			} else if ( eval( "return $talkConstName !== $talkConst;" ) ) {
-				throw new MWException( $talkConstName . " must be set to " . $talkConst );
+				throw new MWException(
+					$talkConstName . " must be set to " . $talkConst
+				);
 			}
 
 			$wgExtraNamespaces[ $const ] = $nsName;
@@ -136,6 +145,10 @@ class Hook {
 
 			if ( isset( $conf->useCollection ) && $conf->useCollection ) {
 				$wgCollectionArticleNamespaces[] = $const;
+			}
+
+			if ( isset( $conf->useApprovedRevs ) && $conf->useApprovedRevs ) {
+				$egApprovedRevsNamespaces[] = $const;
 			}
 		}
 	}
