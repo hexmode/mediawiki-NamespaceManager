@@ -50,6 +50,8 @@ class ConfigDumper extends Maintenance {
 						  false, false, "j" );
 		$this->addOption( "var", "Show the php config of a given variable.",
 						  false, true, "v" );
+		$this->addOption( "user", "Get the user's groups.",
+						  false, true, "u" );
 		$this->nsConf = new stdClass();
 	}
 
@@ -63,6 +65,11 @@ class ConfigDumper extends Maintenance {
 			$this->output( "\$$var = " .
 						   eval( "global \$$var; return var_export( \$$var, true);" )
 						   . "\n" );
+			return;
+		}
+		if ( $var = $this->getOption( "user" ) ) {
+			$user = \User::newFromID($var);
+			$this->output( serialize( \User::getAllGroups() ) . "\n" );
 			return;
 		}
 		$this->maybeHelp( true );
@@ -84,6 +91,7 @@ class ConfigDumper extends Maintenance {
 		global $wgNonincludableNamespaces;
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCirrusSearchNamespaceWeights;
+		global $egApprovedRevsNamespaces;
 
 		$ignoreNamespaces = [ 'Form', 'Gadget', 'Gadget_definition', 'Concept',
 							  'Campaign', 'Property', 'Widget' ];
@@ -129,6 +137,10 @@ class ConfigDumper extends Maintenance {
 			$this->nsConf->$name->useCollection = false;
 			if ( isset( $nsCollection[$const] ) ) {
 				$this->nsConf->$name->useCollection = true;
+			}
+
+			if ( isset( $egApprovedRevsNamespaces[$const] ) ) {
+				$this->nsConf->$name->useApprovedRevs = true;
 			}
 
 			if ( isset( $nsConst[$const] ) ) {
@@ -231,7 +243,7 @@ class ConfigDumper extends Maintenance {
 										   $this->nsConf->$name->permission . " permission." );
 				}
 				$this->nsConf->$name->group = array_shift( $permGroup );
-            }
+			}
 
 			if ( isset( $wgCirrusSearchNamespaceWeights ) ) {
 				$this->nsConf->$name->searchWeight = null;
