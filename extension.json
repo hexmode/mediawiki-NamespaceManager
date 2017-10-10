@@ -1,5 +1,5 @@
 {
-	"name": "Namespace Manager",
+	"name": "NamespaceManager",
 	"namemsg": "nsmgr-extensionname",
 	"version": "0.1",
 	"author": [
@@ -13,26 +13,31 @@
 			"i18n"
 		]
 	},
-	"AutoloadClasses": {
-		"NamespaceManager\\Hook": "src/Hook.php"
-	},
 	"Hooks": {
 		"NamespaceIsMovable": [
-			"NamespaceManager\\Hook::onNamespaceIsMovable"
+			"MediaWiki\\Extension\\NamespaceManager\\Hook::onNamespaceIsMovable"
 		],
 		"SearchableNamespaces": [
-			"NamespaceManager\\Hook::onSearchableNamespaces"
+			"MediaWiki\\Extension\\NamespaceManager\\Hook::onSearchableNamespaces"
 		],
 		"EditPageTosSummary": [
-			"NamespaceManager\\Hook::onEditPageTosSummary"
+			"MediaWiki\\Extension\\NamespaceManager\\Hook::onEditPageTosSummary"
 		],
 		"EditPageCopyrightWarning": [
-			"NamespaceManager\\Hook::onEditPageCopyrightWarning"
+			"MediaWiki\\Extension\\NamespaceManager\\Hook::onEditPageCopyrightWarning"
 		],
 		"ChangesListSpecialPageQuery": [
-			"NamespaceManager\\Hook::onChangesListSpecialPageQuery"
+			"MediaWiki\\Extension\\NamespaceManager\\Hook::onChangesListSpecialPageQuery"
 		]
 	},
-	"callback": "NamespaceManager\\Hook::init",
+	"config": {
+		"_prefix": "NamespaceManager",
+		"MapFile": "ns.json"
+	},
+	"ConfigRegistry": {
+		"ldapprovider": "MediaWiki\\Extension\\NamespaceManager\\Config::newInstance"
+	},
+	"callback": "MediaWiki\\Extension\\NamespaceManager\\Hook::init",
+	"load_composer_autoloader": true,
 	"manifest_version": 1
 }

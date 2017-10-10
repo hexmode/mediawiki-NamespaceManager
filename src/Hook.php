@@ -17,24 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace NamespaceManager;
+namespace MediaWiki\Extension\NamespaceManager;
 
 use Title;
 use MWException;
 
 class Hook {
-	static public function onNamespaceIsMovable( $index, &$result ) {
+	public static function onNamespaceIsMovable( $index, &$result ) {
 	}
 
-	static public function onSearchableNamespaces( array &$ns ) {
+	public static function onSearchableNamespaces( array &$ns ) {
 	}
 
-	static protected function getNSConfig() {
-		global $IP;
-		return json_decode( file_get_contents( "$IP/ns.json" ) );
+	protected static function getNSConfig() {
+		$config = Config::newInstance();
+
+		return json_decode( file_get_contents( $config->get( Config::MAP_FILE ) ) );
 	}
 
-	static public function init( ) {
+	public static function init() {
 		global $smwgNamespacesWithSemanticLinks;
 		global $wgContentNamespaces;
 		global $wgExtraNamespaces;
@@ -57,7 +58,7 @@ class Hook {
 			throw new MWException( "A Global Admin group needs to be set." );
 		}
 		$adminGroup = $nsConf->globalAdmin;
-		foreach( $nsConf as $nsName => $conf ) {
+		foreach ( $nsConf as $nsName => $conf ) {
 			if ( $nsName == "globalAdmin" ) {
 				continue;
 			}
@@ -99,7 +100,7 @@ class Hook {
 
 			if ( !defined( $conf->const ) ) {
 				define( $conf->const, $const );
-			} else if ( eval( "return $const !== {$conf->const};" ) ) {
+			} elseif ( eval( "return $const !== {$conf->const};" ) ) {
 				throw new MWException(
 					$conf->const . " must be set to " . $const
 				);
@@ -108,7 +109,7 @@ class Hook {
 			$talkConstName = $conf->const . "_TALK";
 			if ( !defined( $talkConstName ) ) {
 				define( $talkConstName, $talkConst );
-			} else if ( eval( "return $talkConstName !== $talkConst;" ) ) {
+			} elseif ( eval( "return $talkConstName !== $talkConst;" ) ) {
 				throw new MWException(
 					$talkConstName . " must be set to " . $talkConst
 				);
@@ -117,7 +118,7 @@ class Hook {
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 			if ( isset( $conf->alias ) && is_array( $conf->alias ) ) {
-				foreach( $conf->alias as $alias ) {
+				foreach ( $conf->alias as $alias ) {
 					$wgNamespaceAliases[ $alias ] = $const;
 					$wgNamespaceAliases[ "{$alias}_talk" ] = $talkConst;
 					$wgNamespaceAliases[ "{$alias} talk" ] = $talkConst;
@@ -153,13 +154,13 @@ class Hook {
 		}
 	}
 
-	static public function onChangesListSpecialPageQuery(
+	public static function onChangesListSpecialPageQuery(
 		$name, &$tables, &$fields, &$conds, &$query_options, &$join_conds, $opts
 	) {
 		global $wgNamespaceHideFromRC;
 
-		if( $name === "Recentchanges" ) {
-			if ( count( $wgNamespaceHideFromRC  ) ) {
+		if ( $name === "Recentchanges" ) {
+			if ( count( $wgNamespaceHideFromRC ) ) {
 				$conds[] = 'rc_namespace NOT IN (' .
 						 implode( ", ", $wgNamespaceHideFromRC ) . ')';
 			}
@@ -167,9 +168,9 @@ class Hook {
 		return true;
 	}
 
-	static public function onEditPageTosSummary( Title $title,  &$msg ) {
+	public static function onEditPageTosSummary( Title $title,  &$msg ) {
 	}
 
-	static public function onEditPageCopyrightWarning( Title $title, &$msg ) {
+	public static function onEditPageCopyrightWarning( Title $title, &$msg ) {
 	}
 }

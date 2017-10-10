@@ -4,6 +4,6 @@
 	    "Mark A. Hershberger"
 	]
     },
-    "nsmgr-extensionname": "Namespace Manager",
+    "nsmgr-extensionname": "NamespaceManager",
     "nsmgr-desc": "Provide a special page to handle namespaces."
 }
