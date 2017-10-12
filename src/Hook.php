@@ -77,6 +77,7 @@ class Hook {
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCollectionArticleNamespaces;
 		global $egApprovedRevsNamespaces;
+		global $wgPageTriageNamespaces;
 
 		// Actually assign this one sometime
 		global $wgNonincludableNamespaces;
@@ -179,6 +180,10 @@ class Hook {
 
 			if ( isset( $conf->useApprovedRevs ) && $conf->useApprovedRevs ) {
 				$egApprovedRevsNamespaces[] = $const;
+			}
+
+			if ( isset( $conf->usePageTriage ) && $conf->usePageTriage ) {
+				$wgPageTriageNamespaces[] = $const;
 			}
 		}
 	}
