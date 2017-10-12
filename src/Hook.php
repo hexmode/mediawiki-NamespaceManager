@@ -1,6 +1,7 @@
 <?php
-
-/*
+/**
+ * Hooking into everything
+ *
  * Copyright (C) 2017  NicheWork, LLC
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,18 +26,42 @@ use Title;
 use MWException;
 
 class Hook {
+	/**
+	 * Is a page is movable in this namespace?
+	 *
+	 * @param int $index the index of the namespace being checked.
+	 * @param bool &$result whether pages in this namespace are movable.
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/NamespaceIsMovable
+	 */
 	public static function onNamespaceIsMovable( $index, &$result ) {
 	}
 
+	/**
+	 * Modify the searchable namespaces.
+	 *
+	 * @param array &$ns namespces [$nsID => $name] which will be searchable
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SearchableNamespaces
+	 */
 	public static function onSearchableNamespaces( array &$ns ) {
 	}
 
+	/**
+	 * Read the JSON config file for the namespaces
+	 *
+	 * @return StdClass object with contents
+	 */
 	protected static function getNSConfig() {
 		$config = Config::newInstance();
 
 		return json_decode( file_get_contents( $config->get( Config::MAP_FILE ) ) );
 	}
 
+	/**
+	 * Initialize everything.  Called after extensions are
+	 * loaded. Sets up namespaces as desired.
+	 */
 	public static function init() {
 		global $smwgNamespacesWithSemanticLinks;
 		global $wgContentNamespaces;
@@ -49,10 +74,12 @@ class Hook {
 		global $wgNamespaceProtection;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
-		global $wgNonincludableNamespaces;
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCollectionArticleNamespaces;
 		global $egApprovedRevsNamespaces;
+
+		// Actually assign this one sometime
+		global $wgNonincludableNamespaces;
 
 		$nsConf = self::getNSConfig();
 
@@ -156,6 +183,21 @@ class Hook {
 		}
 	}
 
+	/**
+	 * Called when building SQL query on pages inheriting from
+	 * ChangesListSpecialPage (in core: RecentChanges,
+	 * RecentChangesLinked and Watchlist).
+	 *
+	 * @param string $name name of the special page, e.g. 'Watchlist'
+	 * @param array &$tables to be queried
+	 * @param array &$fields to select
+	 * @param array &$conds for query
+	 * @param array &$query_options for the database request
+	 * @param array &$join_conds for the tables
+	 * @param FormOptions $opts for this request
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ChangesListSpecialPageQuery
+	 */
 	public static function onChangesListSpecialPageQuery(
 		$name, &$tables, &$fields, &$conds, &$query_options, &$join_conds, $opts
 	) {
@@ -167,12 +209,28 @@ class Hook {
 						 implode( ", ", $wgNamespaceHideFromRC ) . ')';
 			}
 		}
-		return true;
 	}
 
+	/**
+	 * Possible per-namespace customizations of terms of service summary link
+	 *
+	 * @param Title $title of page being edited
+	 * @param string &$msg message name, defaults to editpage-tos-summary
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
+	 */
 	public static function onEditPageTosSummary( Title $title,  &$msg ) {
 	}
 
+	/**
+	 * Possible per-namespace Allow customization of contribution/copyright notice.
+	 *
+	 * @param Title $title of page being edited
+	 * @param string &$msg message name, defaults to editpage-tos-summary
+	 *                     Default is either 'copyrightwarning' or 'copyrightwarning2'
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageCopyrightWarning
+	 */
 	public static function onEditPageCopyrightWarning( Title $title, &$msg ) {
 	}
 }
