@@ -4,7 +4,7 @@
  * Maintenance script to dump out all the current settings for all
  * namespaces in json format.
  *
- * Copyright (C) 2017  Mark A. Hershberger
+ * Copyright (C) 2017  NicheWork, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Mark A. Hershberger <mah@nichework.com>
  */
 
 namespace NamespaceManager;
