@@ -1,13 +1,21 @@
 {
 	"name": "NamespaceManager",
 	"namemsg": "nsmgr-extensionname",
-	"version": "0.1",
+	"version": "0.2",
 	"author": [
 		"[//hexmode.com Mark A. Hershberger]"
 	],
+	"url": "https://mediawiki.org/wiki/Extension:NamespaceManager",
 	"descriptionmsg": "nsmgr-desc",
-	"type": "special",
 	"license-name": "GPL-3.0+",
+	"config": {
+		"_prefix": "NamespaceManager",
+		"MapFile": "ns.json"
+	},
+	"requires": {
+		"MediaWiki": ">= 1.27.0"
+	},
+	"type": "special",
 	"MessagesDirs": {
 		"NamespaceManager": [
 			"i18n"
@@ -15,29 +23,25 @@
 	},
 	"Hooks": {
 		"NamespaceIsMovable": [
-			"MediaWiki\\Extension\\NamespaceManager\\Hook::onNamespaceIsMovable"
+			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onNamespaceIsMovable"
 		],
 		"SearchableNamespaces": [
-			"MediaWiki\\Extension\\NamespaceManager\\Hook::onSearchableNamespaces"
+			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onSearchableNamespaces"
 		],
 		"EditPageTosSummary": [
-			"MediaWiki\\Extension\\NamespaceManager\\Hook::onEditPageTosSummary"
+			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onEditPageTosSummary"
 		],
 		"EditPageCopyrightWarning": [
-			"MediaWiki\\Extension\\NamespaceManager\\Hook::onEditPageCopyrightWarning"
+			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onEditPageCopyrightWarning"
 		],
 		"ChangesListSpecialPageQuery": [
-			"MediaWiki\\Extension\\NamespaceManager\\Hook::onChangesListSpecialPageQuery"
+			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onChangesListSpecialPageQuery"
 		]
 	},
-	"config": {
-		"_prefix": "NamespaceManager",
-		"MapFile": "ns.json"
-	},
 	"ConfigRegistry": {
-		"ldapprovider": "MediaWiki\\Extension\\NamespaceManager\\Config::newInstance"
+		"ldapprovider": "MediaWiki\\Extensions\\NamespaceManager\\Config::newInstance"
 	},
-	"callback": "MediaWiki\\Extension\\NamespaceManager\\Hook::init",
+	"callback": "MediaWiki\\Extensions\\NamespaceManager\\Hooks::init",
 	"load_composer_autoloader": true,
 	"manifest_version": 1
 }

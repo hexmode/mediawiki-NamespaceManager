@@ -1,13 +1,3 @@
-# Local ignores
-/images/math
-/tmp
-
-# # Repository management
-.svn
-
-# git-deploy status file:
-/.deploy
-
 # Editors
 *.kate-swp
 *~
@@ -26,35 +16,9 @@ project.index
 sublime-*
 sftp-config.json
 
-# MediaWiki install & usage
-/cache
-/docs/js
-/images/[0-9a-f]
-/images/archive
-/images/cache
-/images/deleted
-/images/lockdir
-/images/temp
-/images/thumb
-## Extension:EasyTimeline
-/images/timeline
-/images/tmp
-/maintenance/.mweval_history
-/maintenance/.mwsql_history
-/maintenance/dev/data
-/AdminSettings.php
-/LocalSettings.php
-/StartProfiler.php
-
-# Building & testing
-node_modules/
-/tests/phpunit/phpunit.phar
-
 # Composer
 /vendor
 /composer.lock
-/composer.json
-/composer.local.json
 
 # MediaWiki UI documentation
 /docs/kss/static

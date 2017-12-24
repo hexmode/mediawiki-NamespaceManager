@@ -2,7 +2,7 @@
 /**
  * Load config object for NamespaceManager
  *
- * Copyright (C) 2017  NicheWork, LLC
+ * Copyright © 2017 NicheWork, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@
  * @author Mark A. Hershberger <mah@nichework.com>
  */
 
-namespace MediaWiki\Extension\NamespaceManager;
+namespace MediaWiki\Extensions\NamespaceManager;
 
-class Config extends \GlobalVarConfig {
+use GlobalVarConfig;
+
+class Config extends GlobalVarConfig {
 
 	const MAP_FILE = 'MapFile';
 
@@ -32,6 +34,7 @@ class Config extends \GlobalVarConfig {
 
 	/**
 	 * Factory method for MediaWikiServices
+	 *
 	 * @return Config
 	 */
 	public static function newInstance() {
