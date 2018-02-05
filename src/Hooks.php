@@ -148,7 +148,7 @@ class Hooks {
 		if ( !defined( $constName ) ) {
 			define( $constName, $constVal );
 		} elseif (
-			is_int( $constVal ) && eval( "return $constVal !== $constName" )
+			is_int( $constVal ) && eval( "return $constVal !== $constName;" )
 		) {
 			throw new MWException( "$constName must be set to $constVal" );
 		}
@@ -194,19 +194,19 @@ class Hooks {
 			$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
 		}
 
-		if ( $conf->useFlowForTalk ) {
+		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
 			$wgNamespaceContentModels[$talkConst] = 'flow-board';
 		}
 
-		if ( $conf->useCollection ) {
+		if ( isset( $conf->useCollection ) && $conf->useCollection ) {
 			$wgCollectionArticleNamespaces[] = $const;
 		}
 
-		if ( $conf->useApprovedRevs ) {
+		if ( isset( $conf->useApprovedRevs ) && $conf->useApprovedRevs ) {
 			$egApprovedRevsNamespaces[] = $const;
 		}
 
-		if ( $conf->usePageTriage ) {
+		if ( isset( $conf->usePageTriage ) && $conf->usePageTriage ) {
 			$wgPageTriageNamespaces[] = $const;
 		}
 	}
@@ -242,10 +242,10 @@ class Hooks {
 			$talkConstName = $conf->const . "_TALK";
 			$talkConst = $conf->number + 1;
 			$const = $conf->number;
-			self::setConst( $conf->const, $conf->number );
-			self::setConst( $talkConstName, $talkConst );
+			self::checkConst( $conf->const, $conf->number );
+			self::checkConst( $talkConstName, $talkConst );
 			self::setupAliases( $conf );
-			self::setupNSExentions( $conf );
+			self::setupNSExtensions( $conf );
 
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
