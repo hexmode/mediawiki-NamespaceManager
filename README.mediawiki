@@ -23,4 +23,4 @@ The next line sets the value for the ns to null as default.  In the coorespodnin
 
 The second <code>if( isset(…</code> checks to see if anything is set for this namespace.  If there is, then the value is given to the <code>searchWeight</code> key.
 
-Now, we run 
+
