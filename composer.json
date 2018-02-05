@@ -2,7 +2,7 @@
 	"name": "mediawiki/namespace-manager",
 	"description": "A namespace manager for MediaWiki",
 	"type": "mediawiki-extension",
-	"license": "GPL-3.0+",
+	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
 			"name": "Mark A. Hershberger",
