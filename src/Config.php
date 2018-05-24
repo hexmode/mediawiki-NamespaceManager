@@ -20,7 +20,7 @@
  * @author Mark A. Hershberger <mah@nichework.com>
  */
 
-namespace MediaWiki\Extensions\NamespaceManager;
+namespace MediaWiki\Extension\NamespaceManager;
 
 use GlobalVarConfig;
 

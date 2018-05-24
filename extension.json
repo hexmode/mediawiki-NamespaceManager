@@ -23,25 +23,25 @@
 	},
 	"Hooks": {
 		"NamespaceIsMovable": [
-			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onNamespaceIsMovable"
+			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onNamespaceIsMovable"
 		],
 		"SearchableNamespaces": [
-			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onSearchableNamespaces"
+			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onSearchableNamespaces"
 		],
 		"EditPageTosSummary": [
-			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onEditPageTosSummary"
+			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onEditPageTosSummary"
 		],
 		"EditPageCopyrightWarning": [
-			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onEditPageCopyrightWarning"
+			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onEditPageCopyrightWarning"
 		],
 		"ChangesListSpecialPageQuery": [
-			"MediaWiki\\Extensions\\NamespaceManager\\Hooks::onChangesListSpecialPageQuery"
+			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onChangesListSpecialPageQuery"
 		]
 	},
 	"ConfigRegistry": {
-		"ldapprovider": "MediaWiki\\Extensions\\NamespaceManager\\Config::newInstance"
+		"namespacemanager": "MediaWiki\\Extension\\NamespaceManager\\Config::newInstance"
 	},
-	"callback": "MediaWiki\\Extensions\\NamespaceManager\\Hooks::init",
+	"callback": "MediaWiki\\Extension\\NamespaceManager\\Hooks::init",
 	"load_composer_autoloader": true,
 	"manifest_version": 1
 }

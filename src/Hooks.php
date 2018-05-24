@@ -2,7 +2,7 @@
 /**
  * Hooking into everything
  *
- * Copyright © 2017 NicheWork, LLC
+ * Copyright (C) 2017  NicheWork, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  * @author Mark A. Hershberger <mah@nichework.com>
  */
 
-namespace MediaWiki\Extensions\NamespaceManager;
+namespace MediaWiki\Extension\NamespaceManager;
 
 use Title;
 use MWException;
@@ -89,6 +89,14 @@ class Hooks {
 		);
 	}
 
+	private static function setNSPermIfUnset( $ns, $perm = 'read', $group = '*' ) {
+		global $wgNamespacePermissionLockdown;
+
+		if ( ! isset( $wgNamespacePermissionLockdown [ $ns ][ $perm ] ) ) {
+			$wgNamespacePermissionLockdown [ $ns ][ $perm ] = $group;
+		}
+	}
+
 	/**
 	 * Set up permissions for a namespace
 	 *
@@ -131,6 +139,12 @@ class Hooks {
 						= [ $group, $adminGroup ];
 					$wgNamespacePermissionLockdown[ $talkConst ][ $perm ]
 						= [ $group, $adminGroup ];
+				}
+				if ( ! ( is_array( $conf->lockdown ) && in_array( 'read', $conf->lockdown ) ) ) {
+					self::setNSPermIfUnset( $const );
+					self::setNSPermIfUnset( $talkConst );
+					self::setNSPermIfUnset( $talkConst, 'createtalk' );
+					self::setNSPermIfUnset( $talkConst, 'edit' );
 				}
 			}
 		}
@@ -285,8 +299,8 @@ class Hooks {
 
 		if ( $name === "Recentchanges" ) {
 			if ( count( $wgNamespaceHideFromRC ) ) {
-				$conds[] = 'rc_namespace NOT IN (' .
-				implode( ", ", $wgNamespaceHideFromRC ) . ')';
+				$conds[] = 'rc_namespace NOT IN ('
+						 . implode( ", ", $wgNamespaceHideFromRC ) . ')';
 			}
 		}
 	}
