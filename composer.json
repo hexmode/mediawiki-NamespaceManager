@@ -20,8 +20,8 @@
 	],
 	"autoload" : {
 		"psr-4": {
-			"MediaWiki\\Extensions\\NamespaceManager\\Tests\\" : "tests/phpunit",
-			"MediaWiki\\Extensions\\NamespaceManager\\" : "src"
+			"MediaWiki\\Extension\\NamespaceManager\\Tests\\" : "tests/phpunit",
+			"MediaWiki\\Extension\\NamespaceManager\\" : "src"
 		}
 	},
 	"require": {

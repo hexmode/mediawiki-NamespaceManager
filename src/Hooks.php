@@ -125,10 +125,6 @@ class Hooks {
 			$wgGroupPermissions[ $adminGroup ][$permission] = true;
 			$wgNamespaceProtection[ $const ][] = $permission;
 			$wgNamespaceProtection[ $talkConst ][] = $permission;
-			// Would like to have this but then you can't include
-			// them from your own NS
-			// $wgNonincludableNamespaces[] = $const;
-			// $wgNonincludableNamespaces[] = $talkConst;
 			$wgNamespaceHideFromRC[] = $const;
 			$wgNamespaceHideFromRC[] = $talkConst;
 			if ( isset( $conf->lockdown ) && is_array( $conf->lockdown ) ) {
