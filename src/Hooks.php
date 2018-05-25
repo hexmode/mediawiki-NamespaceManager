@@ -2,7 +2,7 @@
 /**
  * Hooking into everything
  *
- * Copyright (C) 2017  NicheWork, LLC
+ * Copyright © 2017 NicheWork, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,20 +102,22 @@ class Hooks {
 	 *
 	 * @param string $adminGroup name of the "super user" group
 	 * @param stdClass $conf section from ns.conf
-	 * @SuppressWarnings(PHPMD.UnusedLocalVariable) # $wgNonIncludableNamespace
 	 */
 	protected static function secureNS( $adminGroup, $conf ) {
 		global $wgNamespacePermissionLockdown;
 		global $wgGroupPermissions;
 		global $wgNamespaceHideFromRC;
 		global $wgNamespaceProtection;
-		// Actually assign this one sometime
-		global $wgNonincludableNamespaces; // @codingStandardsIgnoreLine
+		global $wgNonincludableNamespaces;
 
 		$const = $conf->number;
 		$talkConst = $conf->number + 1;
 		$permission = isset( $conf->permission ) ? $conf->permission : null;
 		$group = isset( $conf->group ) ? $conf->group : null;
+
+		if ( isset( $conf->includable ) && $conf->includable === false ) {
+			$wgNonincludableNamespaces[] = $const;
+		}
 
 		if ( $group && $permission !== null ) {
 			$wgGroupPermissions['*'][$permission] = false;
