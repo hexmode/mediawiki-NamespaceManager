@@ -274,7 +274,9 @@ class Hooks {
 				$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
 			}
 
-			$wgContentNamespaces[] = $const;
+			if ( isset( $conf->content ) && $conf->content === true ) {
+				$wgContentNamespaces[] = $const;
+			}
 		}
 	}
 
