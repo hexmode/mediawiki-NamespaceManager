@@ -222,19 +222,36 @@ class Hooks {
 		global $smwgNamespacesWithSemanticLinks; // @codingStandardsIgnoreLine
 		global $egApprovedRevsNamespaces; // @codingStandardsIgnoreLine
 		global $wgNamespaceContentModels;
+		global $wgPageImagesNamespaces;
+		global $wgContentNamespaces;
+		global $wgNamespacesToBeSearchedDefault;
+		global $wgNamespacesWithSubpages;
 
 		$talkConst = $conf->number + 1;
 		$const = $conf->number;
 
+		if ( isset( $conf->hasSubpage ) ) {
+			$wgNamespacesWithSubpages[$const] = $conf->hasSubpage;
+		}
+
+		if ( isset( $conf->defaultSearch ) ) {
+			$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+		}
+
 		if ( isset( $conf->useVE ) ) {
 			$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
 		}
+
 		if ( isset( $conf->useSMW ) ) {
 			$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
 		}
 
 		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
 			$wgNamespaceContentModels[$talkConst] = 'flow-board';
+		}
+
+		if ( isset( $conf->content ) && $conf->content ) {
+			$wgContentNamespaces[] = $const;
 		}
 
 		if ( isset( $conf->useCollection ) && $conf->useCollection ) {
@@ -248,6 +265,10 @@ class Hooks {
 		if ( isset( $conf->usePageTriage ) && $conf->usePageTriage ) {
 			$wgPageTriageNamespaces[] = $const;
 		}
+
+		if ( isset( $conf->usePageImages ) && $conf->usePageImages ) {
+			$wgPageImagesNamespces[] = $const;
+		}
 	}
 
 	/**
@@ -256,11 +277,7 @@ class Hooks {
 	 * @SuppressWarnings(PHPMD.LongVariable)
 	 */
 	public static function init() {
-		global $wgContentNamespaces;
 		global $wgExtraNamespaces;
-		global $wgNamespacesToBeSearchedDefault;
-		global $wgNamespacesWithSubpages;
-
 		$nsConf = self::getNSConfig();
 
 		if ( !isset( $nsConf->globalAdmin ) ) {
@@ -289,17 +306,7 @@ class Hooks {
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 
-			if ( isset( $conf->hasSubpage ) ) {
-				$wgNamespacesWithSubpages[ $const ] = $conf->hasSubpage;
-			}
-
-			if ( isset( $conf->defaultSearch ) ) {
-				$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
-			}
-
-			if ( isset( $conf->content ) && $conf->content === true ) {
-				$wgContentNamespaces[] = $const;
-			}
+			$wgContentNamespaces[] = $const;
 		}
 	}
 
