@@ -22,10 +22,25 @@
 
 namespace MediaWiki\Extension\NamespaceManager;
 
-use Title;
+use DatabaseUpdater;
 use MWException;
+use stdClass;
+use Title;
 
 class Hooks {
+	/**
+	 * Schema initialization and updating
+	 *
+	 * @param DatabaseUpdater $updater to manage updates
+	 */
+	public static function onLoadExtensionSchemaUpdates(
+		DatabaseUpdater $updater
+	) {
+		$updater->addExtensionTable(
+			'namespace_mgr', __DIR__ . '/../sql/namespace_mgr.sql'
+		);
+	}
+
 	/**
 	 * Possible per-namespace customizations of terms of service summary link
 	 *
@@ -83,10 +98,22 @@ class Hooks {
 	 */
 	protected static function getNSConfig() {
 		$config = Config::newInstance();
+		$nsConf = $config->get( Config::MAP_FILE );
 
-		return json_decode(
-			file_get_contents( $config->get( Config::MAP_FILE ) )
-		);
+		if ( file_exists( $nsConf ) ) {
+			if ( is_readable( $nsConf ) ) {
+				$nsConfig = json_decode( file_get_contents( $nsConf ) );
+			} else {
+				throw new MWException(
+					"Can't read namespace config: $nsConfig."
+				);
+			}
+		} else {
+			$nsConfig = new stdClass;
+			$nsConfig->globalAdmin = "sysop";
+		}
+
+		return $nsConfig;
 	}
 
 	private static function setNSPermIfUnset( $ns, $perm = 'read', $group = '*' ) {
