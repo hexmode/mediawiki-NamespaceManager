@@ -285,8 +285,10 @@ class Hooks {
 	private static $lockdownDefaults;
 	private static function setupDefaults( stdClass &$nsConf ) {
 		if ( isset( $nsConf->defaults ) ) {
+			# We want to make sure we aren't overwriting these two
 			unset( $nsConf->defaults->constant );
 			unset( $nsConf->defaults->id );
+
 			self::$defaults = $nsConf->defaults;
 			unset( $nsConf->defaults );
 		}
@@ -308,6 +310,13 @@ class Hooks {
 		}
 	}
 
+	private static function setLockdownDefaults( Config $conf ) {
+		if ( $conf->lockdown === true ) {
+			$conf->lockdown = self::$lockdownDefault;
+			unset( $nsConf->lockdownDefaults );
+		}
+	}
+
 	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
@@ -318,7 +327,6 @@ class Hooks {
 		$nsConf = self::getNSConfig();
 		self::setupDefaults( $nsConf );
 
-		self::setupDefaults( $nsConf );
 		if ( !isset( $nsConf->globalAdmin ) ) {
 			throw new MWException( "A Global Admin group needs to be set." );
 		}
