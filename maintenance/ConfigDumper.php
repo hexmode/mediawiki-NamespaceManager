@@ -39,6 +39,11 @@ use stdClass;
  */
 class ConfigDumper extends Maintenance {
 	protected $nsConf;
+	protected $permMap;
+	protected $adminGroup;
+	protected $ignoreNS = [
+		'Form', 'Gadget', 'Gadget_definition', 'Concept', 'Campaign', 'Property', 'Widget'
+	];
 
 	/**
 	 * A constructor for ye
@@ -48,18 +53,25 @@ class ConfigDumper extends Maintenance {
 		$this->mDescription = "Read all the current settings that NameaspaceManager " .
 							"will handle for all namespaces";
 
-		$this->addOption( "json", "Output a json file that could be read in.",
-						  false, false, "j" );
-		$this->addOption( "var", "Show the php config of a given variable.",
-						  false, true, "v" );
-		$this->addOption( "user", "Get the user's groups.",
-						  false, true, "u" );
+		$this->addOption( "json", "Output a json file that could be read in.", false, false, "j" );
+		$this->addOption( "var", "Show the php config of a given variable.", false, true, "v" );
+		$this->addOption( "user", "Get the user's groups.", false, true, "u" );
+		$this->addOption( "ignore", "Comma-separated list of namespaces to ignore",
+						  false, true, "i" );
 		$this->nsConf = new stdClass();
 	}
 
+	public function setIgnoredNamespaces( $ignoreNS ) {
+		$this->ignoreNS = array_merge( $this->ignoreNS, preg_split( "/[, ]+/", $ignoreNS ) );
+	}
+
 	public function execute() {
+		if ( $this->getOption( "ignore" ) ) {
+			$this->setIgnoredNamespaces( $this->getOption( "ignore" ) );
+		}
 		if ( $this->getOption( "json" ) ) {
 			$this->loadNSConfig();
+			$this->cleanDefaults();
 			$this->output( json_encode( $this->nsConf, JSON_PRETTY_PRINT ) . "\n" );
 			return;
 		}
@@ -75,6 +87,39 @@ class ConfigDumper extends Maintenance {
 			return;
 		}
 		$this->maybeHelp( true );
+	}
+
+	public function cleanDefaults() {
+		$globalAdmin = $this->nsConf->globalAdmin;
+		foreach ( $this->nsConf as $ns ) {
+			// if ( isset( $ns->alias ) && is_array( $ns->alias ) && count( $ns->alias ) === 0 ) {
+			//     unset( $ns->alias );
+			// }
+			if ( !is_object( $ns ) ) {
+				continue;
+			}
+			if ( !isset( $ns->alias ) ) {
+				$ns->alias = [];
+			}
+			if ( !isset( $ns->group ) ) {
+				$ns->group = null;
+			}
+			if ( is_array( $ns->group ) && in_array( $globalAdmin, $ns->group ) ) {
+				// Without array_values this will keep the keys which will end up out of order
+				// so that when we print it, the json output function will be confused
+				// Oh, and right now we only want one.
+				$ns->group = array_shift( array_values( array_diff( $ns->group, [ $globalAdmin ] ) ) );
+			}
+			if ( !isset( $ns->includable ) ) {
+				$ns->includable = true;
+			}
+			if ( !isset( $ns->lockdown ) ) {
+				$ns->lockdown = false;
+			}
+			if ( !isset( $ns->permission ) ) {
+				$ns->permission = null;
+			}
+		}
 	}
 
 	public function loadNSConfig() {
@@ -95,10 +140,7 @@ class ConfigDumper extends Maintenance {
 		global $wgCirrusSearchNamespaceWeights;
 		global $egApprovedRevsNamespaces;
 
-		$ignoreNamespaces = [ 'Form', 'Gadget', 'Gadget_definition', 'Concept',
-							  'Campaign', 'Property', 'Widget' ];
-
-		$adminGroup = null;
+		$this->adminGroup = null;
 
 		$allConst = get_defined_constants(true);
 		$nsConst = array_flip(
@@ -122,13 +164,14 @@ class ConfigDumper extends Maintenance {
 					$permMap[$perm][$group] = $hasIt;
 				}
 			}, array_keys( $wgGroupPermissions ) );
+		$this->permMap = $permMap;
 
 		foreach ( MWNamespace::getCanonicalNamespaces( true ) as $const => $name ) {
 			if ( $name === "" ) {
 				$name = "Main";
 			}
 			// skip talk namespaces and Media, Special and special ignorable ones.
-			if ( $const % 2 !== 0 || $const < 0 || in_array( $name, $ignoreNamespaces ) ) {
+			if ( $const % 2 !== 0 || $const < 0 || in_array( $name, $this->ignoreNS ) ) {
 				continue;
 			}
 
@@ -170,37 +213,25 @@ class ConfigDumper extends Maintenance {
 				$this->nsConf->$name->defaultSearch = $wgNamespacesToBeSearchedDefault[$const];
 			}
 
-			$this->nsConf->$name->permission = null;
-			if ( isset( $wgNamespaceProtection[$const] ) ) {
-				if ( count( $wgNamespaceProtection[$const] ) === 1 ) {
-					$this->nsConf->$name->permission = $wgNamespaceProtection[$const][0];
-				} else {
-					throw new MWException( "Can only handle one permission for now in ".
-										   "wgNamespaceProtection! Found " .
-										   count( $wgNamespaceProtection[$const] ) .
-										   " on $name." );
-				}
-			}
-
-			$this->nsConf->$name->group = null;
-			$this->nsConf->$name->lockdown = false;
 			if ( isset( $wgNamespacePermissionLockdown[$const] ) ) {
 				foreach ( $wgNamespacePermissionLockdown[$const] as $perm => $groups ) {
 					if ( $perm === '*' && count( $groups ) === 1 ) {
-						if ( $adminGroup === null || $adminGroup === $groups[0] ) {
-							$adminGroup = $groups[0];
-							$this->nsConf->globalAdmin = $adminGroup;
-							continue;
+						if (
+							!isset( $this->adminGroup ) || !$this->adminGroup
+							|| $this->adminGroup === $groups[0]
+						) {
+							$this->nsConf->globalAdmin = $this->adminGroup = $groups[0];
 						} else {
 							throw new MWException( "New admin group ({$groups[0]}) " .
 												   "doesn't match previous one " .
-												   "($adminGroup) in $name namespace." );
+												   "($this->adminGroup) in $name namespace." );
 						}
 					} else if ( $perm === '*' && count( $groups ) > 1 ) {
 						throw new MWException( "Don't know how to handle multiple admins " .
 											   "for $name namespace." );
 					}
 
+					$adminGroup = $this->adminGroup;
 					$group = array_filter( $groups,
 										   function( $gg ) use ( $adminGroup ) {
 											   return $gg !== $adminGroup;
@@ -210,8 +241,9 @@ class ConfigDumper extends Maintenance {
 											   implode( ", ", $group ) . ") in $name " .
 											   "namespace." );
 					}
+
 					if ( count( $group ) === 0 ) {
-						$group = $adminGroup;
+						$group = $this->adminGroup;
 					} else {
 						$group = $group[0];
 					}
@@ -220,6 +252,22 @@ class ConfigDumper extends Maintenance {
 						$this->nsConf->$name->lockdown[] = $perm;
 						$this->nsConf->$name->group = $group;
 					}
+				}
+			}
+
+			if ( isset( $wgNamespaceProtection[$const] ) ) {
+				if ( count( $wgNamespaceProtection[$const] ) === 1 ) {
+					$this->nsConf->$name->permission = $wgNamespaceProtection[$const][0];
+					if ( !isset( $this->nsConf->$name->group ) ) {
+						$this->nsConf->$name->group = $this->getNonAdminWithPermission(
+							$name, $this->nsConf->$name->permission
+						);
+					}
+				} else {
+					throw new MWException( "Can only handle one permission for now in ".
+										   "wgNamespaceProtection! Found " .
+										   count( $wgNamespaceProtection[$const] ) .
+										   " on $name." );
 				}
 			}
 
@@ -232,28 +280,66 @@ class ConfigDumper extends Maintenance {
 				$this->nsConf->$name->hasSubpage = $wgNamespacesWithSubpages[ $const ];
 			}
 
-			if ( $this->nsConf->$name->group === null && $this->nsConf->$name->permission !== null
-				 && isset( $permMap[$this->nsConf->$name->permission] ) ) {
-				$permGroup = array_filter(
-					array_keys( array_filter( $permMap[$this->nsConf->$name->permission] ) ),
-					function( $group ) use ( $adminGroup ) {
-						return $group !== $adminGroup;
-					} );
+			if (
+				isset( $this->nsConf->$name->group ) && $this->nsConf->$name->group === null
+				&& $this->nsConf->$name->permission !== null
+				&& isset( $this->permMap[$this->nsConf->$name->permission] )
+			) {
+				$permGroup = $this->getNonAdminWithPermission(
+					$name, $this->nsConf->$name->permission
+				);
 				if( count( $permGroup ) > 1 ) {
-					var_dump( $permGroup );
-					throw new MWException( "More than one group with " .
-										   $this->nsConf->$name->permission . " permission." );
+					$this->error(
+						"There is more than one group with the '" . $this->nsConf->$name->permission
+						. "' permission: " . implode( ", ", $permGroup )
+					);
 				}
 				$this->nsConf->$name->group = array_shift( $permGroup );
 			}
 
 			if ( isset( $wgCirrusSearchNamespaceWeights ) ) {
-				$this->nsConf->$name->searchWeight = null;
 				if ( isset( $wgCirrusSearchNamespaceWeights[$const] ) ) {
 					$this->nsConf->$name->searchWeight
 						= $wgCirrusSearchNamespaceWeights[$const];
 				}
 			}
+
+			if ( isset( $wgNonincludableNamespaces ) ) {
+				if ( in_array( $const, $wgNonincludableNamespaces ) ) {
+					$this->nsConf->$name->includable = false;
+				}
+			}
+
+			global $wgPageTriageNamespaces;
+			if ( isset( $wgPageTriageNamespaces ) ) {
+				if ( in_array( $const, $wgPageTriageNamespaces ) ) {
+					$this->nsConf->$name->usePageTriage = true;
+				}
+			}
+
+			if ( isset ( $wgContentNamespaces ) ) {
+				if ( in_array( $const, $wgContentNamespaces ) ) {
+					$this->nsConf->$name->content = true;
+				}
+			}
+		}
+	}
+
+	private function getNonAdminWithPermission( $name, $permission ) {
+		$permMap = $this->permMap;
+		$adminGroup = $this->adminGroup;
+
+		if ( isset( $permMap[$permission] ) ) {
+			if ( count( $permMap[$permission] ) > 1 && !$adminGroup ) {
+				$this->adminGroup = $this->nsConf->globalAdmin = $adminGroup
+								  = array_shift( $permMap[$permission] );
+			}
+
+			return array_filter(
+				array_keys( array_filter( $permMap[$permission] ) ),
+				function( $group ) use ( $adminGroup ) {
+					return $group !== $adminGroup;
+				} );
 		}
 	}
 }
