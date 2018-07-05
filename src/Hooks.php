@@ -137,8 +137,8 @@ class Hooks {
 		global $wgNamespaceProtection;
 		global $wgNonincludableNamespaces;
 
-		$const = $conf->number;
-		$talkConst = $conf->number + 1;
+		$const = $conf->id;
+		$talkConst = $conf->id + 1;
 		$permission = isset( $conf->permission ) ? $conf->permission : null;
 		$group = isset( $conf->group ) ? $conf->group : null;
 
@@ -154,18 +154,23 @@ class Hooks {
 			$wgNamespaceProtection[ $talkConst ][] = $permission;
 			$wgNamespaceHideFromRC[] = $const;
 			$wgNamespaceHideFromRC[] = $talkConst;
-			if ( isset( $conf->lockdown ) && is_array( $conf->lockdown ) ) {
+			if ( isset( $conf->lockdown ) ) {
 				$wgNamespacePermissionLockdown[ $const ][ '*' ]
 					= [ $adminGroup ];
 				$wgNamespacePermissionLockdown[ $talkConst ][ '*' ]
 					= [ $adminGroup ];
-				foreach ( $conf->lockdown as $perm ) {
-					$wgNamespacePermissionLockdown[ $const ][ $perm ]
-						= [ $group, $adminGroup ];
-					$wgNamespacePermissionLockdown[ $talkConst ][ $perm ]
-						= [ $group, $adminGroup ];
+				if ( is_array( $conf->lockdown ) ) {
+					foreach ( $conf->lockdown as $perm ) {
+						$wgNamespacePermissionLockdown[ $const ][ $perm ]
+							= [ $group, $adminGroup ];
+						$wgNamespacePermissionLockdown[ $talkConst ][ $perm ]
+							= [ $group, $adminGroup ];
+					}
 				}
-				if ( ! ( is_array( $conf->lockdown ) && in_array( 'read', $conf->lockdown ) ) ) {
+				if (
+					! ( is_array( $conf->lockdown )
+						&& in_array( 'read', $conf->lockdown ) )
+				) {
 					self::setNSPermIfUnset( $const );
 					self::setNSPermIfUnset( $talkConst );
 					self::setNSPermIfUnset( $talkConst, 'createtalk' );
@@ -189,7 +194,7 @@ class Hooks {
 		} elseif (
 			is_int( $constVal ) && eval( "return $constVal !== $constName;" )
 		) {
-			throw new MWException( "$constName must be set to $constVal" );
+			throw new MWException( "$constName must be set to " . constant( $constName ) );
 		}
 	}
 
@@ -202,9 +207,9 @@ class Hooks {
 		global $wgNamespaceAliases;
 		if ( isset( $conf->alias ) && is_array( $conf->alias ) ) {
 			foreach ( $conf->alias as $alias ) {
-				$wgNamespaceAliases[ $alias ] = $conf->number;
-				$wgNamespaceAliases[ "{$alias}_talk" ] = $conf->number + 1;
-				$wgNamespaceAliases[ "{$alias} talk" ] = $conf->number + 1;
+				$wgNamespaceAliases[ $alias ] = $conf->id;
+				$wgNamespaceAliases[ "{$alias}_talk" ] = $conf->id + 1;
+				$wgNamespaceAliases[ "{$alias} talk" ] = $conf->id + 1;
 			}
 		}
 	}
@@ -215,7 +220,7 @@ class Hooks {
 	 * @param stdClass $conf section from ns.conf
 	 * @SuppressWarnings(PHPMD.LongVariable)
 	 */
-	protected static function setupNSExtensions( $conf ) {
+	protected static function setupNSExtensions( &$conf ) {
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCollectionArticleNamespaces;
 		global $wgPageTriageNamespaces;
@@ -226,24 +231,29 @@ class Hooks {
 		global $wgContentNamespaces;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
+		global $wgUFAllowedNamespaces;
 
-		$talkConst = $conf->number + 1;
-		$const = $conf->number;
+		$talkConst = $conf->id + 1;
+		$const = $conf->id;
 
-		if ( isset( $conf->hasSubpage ) ) {
-			$wgNamespacesWithSubpages[$const] = $conf->hasSubpage;
+		if ( isset( $conf->hasSubpages ) && $conf->hasSubpages === true ) {
+			$wgNamespacesWithSubpages[$const] = true;
 		}
 
-		if ( isset( $conf->defaultSearch ) ) {
-			$wgNamespacesToBeSearchedDefault[$const] = $conf->defaultSearch;
+		if ( isset( $conf->defaultSearch ) && $conf->defaultSearch === true ) {
+			$wgNamespacesToBeSearchedDefault[$const] = true;
 		}
 
-		if ( isset( $conf->useVE ) ) {
-			$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE;
+		if ( isset( $conf->useVE ) && $conf->useVE === true ) {
+			$wgVisualEditorAvailableNamespaces[$const] = true;
 		}
 
-		if ( isset( $conf->useSMW ) ) {
-			$smwgNamespacesWithSemanticLinks[$const] = $conf->useSMW;
+		if ( isset( $conf->useSMW ) && $conf->useSMW === true ) {
+			$smwgNamespacesWithSemanticLinks[$const] = true;
+		}
+
+		if ( isset( $conf->userFunctions ) && $conf->userFunctions === true ) {
+			$wgUFAllowedNamespaces[$const] = true;
 		}
 
 		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
@@ -271,6 +281,33 @@ class Hooks {
 		}
 	}
 
+	private static $defaults;
+	private static $lockdownDefaults;
+	private static function setupDefaults( stdClass &$nsConf ) {
+		if ( isset( $nsConf->defaults ) ) {
+			unset( $nsConf->defaults->constant );
+			unset( $nsConf->defaults->id );
+			self::$defaults = $nsConf->defaults;
+			unset( $nsConf->defaults );
+		}
+		if ( isset( $nsConf->lockdownDefaults ) ) {
+			self::$lockdownDefaults = $nsConf->lockdownDefaults;
+			unset( $nsConf->lockdownDefaults );
+		}
+	}
+
+	private static function setDefaults( stdClass &$conf ) {
+		foreach( self::$defaults as $key => $value ) {
+			$conf->$key = $value;
+		}
+	}
+
+	private static function setLockdownDefaults( stdClass &$conf ) {
+		if ( isset( $conf->lockdown) && $conf->lockdown === true ) {
+			$conf->lockdown = self::$lockdownDefaults;
+		}
+	}
+
 	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
@@ -279,7 +316,9 @@ class Hooks {
 	public static function init() {
 		global $wgExtraNamespaces;
 		$nsConf = self::getNSConfig();
+		self::setupDefaults( $nsConf );
 
+		self::setupDefaults( $nsConf );
 		if ( !isset( $nsConf->globalAdmin ) ) {
 			throw new MWException( "A Global Admin group needs to be set." );
 		}
@@ -287,26 +326,26 @@ class Hooks {
 			if ( $nsName == "globalAdmin" ) {
 				continue;
 			}
-			if ( !isset( $conf->number ) ) {
+
+			if ( !( isset( $conf->id ) && isset( $conf->constant ) ) ) {
 				throw new MWException(
-					"ns.json needs a number set for '$nsName'."
+					"ns.json needs a constant name and an id set for '$nsName'."
 				);
 			}
-
+			self::setDefaults( $conf );
+			self::setLockdownDefaults( $conf );
 			self::secureNS( $nsConf->globalAdmin, $conf );
 
-			$talkConstName = $conf->const . "_TALK";
-			$talkConst = $conf->number + 1;
-			$const = $conf->number;
-			self::checkConst( $conf->const, $conf->number );
+			$talkConstName = $conf->constant . "_TALK";
+			$talkConst = $conf->id + 1;
+			$const = $conf->id;
+			self::checkConst( $conf->constant, $conf->id );
 			self::checkConst( $talkConstName, $talkConst );
 			self::setupAliases( $conf );
 			self::setupNSExtensions( $conf );
 
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
-
-			$wgContentNamespaces[] = $const;
 		}
 	}
 
