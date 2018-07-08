@@ -310,13 +310,6 @@ class Hooks {
 		}
 	}
 
-	private static function setLockdownDefaults( Config $conf ) {
-		if ( $conf->lockdown === true ) {
-			$conf->lockdown = self::$lockdownDefault;
-			unset( $nsConf->lockdownDefaults );
-		}
-	}
-
 	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
