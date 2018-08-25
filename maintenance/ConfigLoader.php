@@ -375,7 +375,7 @@ class ConfigLoader extends Maintenance {
 	public function maybeUseApprovedRevs() {
 		global $egApprovedRevsNamespaces;
 
-		$num = $this->curentConf->number;
+		$num = $this->currentConf->number;
 		if ( isset( $egApprovedRevsNamespaces[$num] ) ) {
 			$this->currentConf->useApprovedRevs = true;
 		}
