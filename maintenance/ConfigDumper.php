@@ -317,7 +317,7 @@ class ConfigDumper extends Maintenance {
 				}
 			}
 
-			if ( isset ( $wgContentNamespaces ) ) {
+			if ( isset( $wgContentNamespaces ) ) {
 				if ( in_array( $const, $wgContentNamespaces ) ) {
 					$this->nsConf->$name->content = true;
 				}
