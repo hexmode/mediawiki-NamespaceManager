@@ -301,8 +301,10 @@ class Hooks {
 	}
 
 	private static function setDefaults( stdClass &$conf ) {
-		foreach( self::$defaults as $key => $value ) {
-			$conf->$key = $value;
+		foreach ( self::$defaults as $key => $value ) {
+			if ( !isset( $conf->$key ) ) {
+				$conf->$key = $value;
+			}
 		}
 	}
 
