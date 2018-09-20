@@ -116,11 +116,13 @@ class Hooks {
 		return $nsConfig;
 	}
 
-	private static function setNSPermIfUnset( $ns, $perm = 'read', $group = '*' ) {
+	private static function setNSPermIfUnset(
+		$namespace, $perm = 'read', $group = '*'
+	) {
 		global $wgNamespacePermissionLockdown;
 
-		if ( ! isset( $wgNamespacePermissionLockdown [ $ns ][ $perm ] ) ) {
-			$wgNamespacePermissionLockdown [ $ns ][ $perm ] = $group;
+		if ( ! isset( $wgNamespacePermissionLockdown [ $namespace ][ $perm ] ) ) {
+			$wgNamespacePermissionLockdown [ $namespace ][ $perm ] = $group;
 		}
 	}
 
@@ -217,7 +219,7 @@ class Hooks {
 	/**
 	 * Do any extension configuration
 	 *
-	 * @param stdClass $conf section from ns.conf
+	 * @param stdClass &$conf section from ns.conf
 	 * @SuppressWarnings(PHPMD.LongVariable)
 	 */
 	protected static function setupNSExtensions( &$conf ) {
@@ -277,7 +279,7 @@ class Hooks {
 		}
 
 		if ( isset( $conf->usePageImages ) && $conf->usePageImages ) {
-			$wgPageImagesNamespces[] = $const;
+			$wgPageImagesNamespaces[] = $const;
 		}
 	}
 
