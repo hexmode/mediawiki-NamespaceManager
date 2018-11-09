@@ -326,8 +326,10 @@ class Hooks {
 			}
 
 			if ( !( isset( $conf->id ) && isset( $conf->constant ) ) ) {
+				$config = Config::newInstance();
+				$nsConf = $config->get( Config::MAP_FILE );
 				throw new MWException(
-					"ns.json needs a constant name and an id set for '$nsName'."
+					"$nsConf needs a constant name and an id set for '$nsName'."
 				);
 			}
 			self::setDefaults( $conf );

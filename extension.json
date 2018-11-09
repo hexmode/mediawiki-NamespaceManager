@@ -46,6 +46,10 @@
 			"MediaWiki\\Extension\\NamespaceManager\\Hooks::onChangesListSpecialPageQuery"
 		]
 	},
+	"AutoloadClasses": {
+		"MediaWiki\\Extension\\NamespaceManager\\Config": "src/Config.php",
+		"MediaWiki\\Extension\\NamespaceManager\\Hooks": "src/Hooks.php"
+	},
 	"ConfigRegistry": {
 		"namespacemanager": "MediaWiki\\Extension\\NamespaceManager\\Config::newInstance"
 	},
