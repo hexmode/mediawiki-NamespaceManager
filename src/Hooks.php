@@ -376,7 +376,7 @@ class Hooks {
 		global $wgNamespaceHideFromRC;
 
 		if ( $name === "Recentchanges" ) {
-			if ( count( $wgNamespaceHideFromRC ) ) {
+			if ( $wgNamespaceHideFromRC && count( $wgNamespaceHideFromRC ) ) {
 				$conds[] = 'rc_namespace NOT IN ('
 						 . implode( ", ", $wgNamespaceHideFromRC ) . ')';
 			}
