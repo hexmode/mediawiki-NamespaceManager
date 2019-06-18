@@ -50,7 +50,7 @@ class Hooks {
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public static function onEditPageTosSummary( Title $title,  &$msg ) {
+	public static function onEditPageTosSummary( Title $title, &$msg ) {
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Hooks {
 	) {
 		global $wgNamespacePermissionLockdown;
 
-		if ( ! isset( $wgNamespacePermissionLockdown [ $namespace ][ $perm ] ) ) {
+		if ( !isset( $wgNamespacePermissionLockdown [ $namespace ][ $perm ] ) ) {
 			$wgNamespacePermissionLockdown [ $namespace ][ $perm ] = $group;
 		}
 	}
@@ -170,7 +170,7 @@ class Hooks {
 					}
 				}
 				if (
-					! ( is_array( $conf->lockdown )
+					!( is_array( $conf->lockdown )
 						&& in_array( 'read', $conf->lockdown ) )
 				) {
 					self::setNSPermIfUnset( $const );
@@ -285,6 +285,7 @@ class Hooks {
 
 	private static $defaults;
 	private static $lockdownDefaults;
+
 	private static function setupDefaults( stdClass &$nsConf ) {
 		if ( isset( $nsConf->defaults ) ) {
 			# We want to make sure we aren't overwriting these two
@@ -309,7 +310,7 @@ class Hooks {
 	}
 
 	private static function setLockdownDefaults( stdClass &$conf ) {
-		if ( isset( $conf->lockdown) && $conf->lockdown === true ) {
+		if ( isset( $conf->lockdown ) && $conf->lockdown === true ) {
 			$conf->lockdown = self::$lockdownDefaults;
 		}
 	}
