@@ -28,10 +28,6 @@ class Config extends GlobalVarConfig {
 
 	const MAP_FILE = 'MapFile';
 
-	public function __construct() {
-		parent::__construct( 'NamespaceManager' );
-	}
-
 	/**
 	 * Factory method for MediaWikiServices
 	 *

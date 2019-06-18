@@ -48,7 +48,7 @@ class Hooks {
 	 * @param string &$msg message name, defaults to editpage-tos-summary
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onEditPageTosSummary( Title $title, &$msg ) {
 	}
@@ -63,7 +63,7 @@ class Hooks {
 	 *                      'copyrightwarning2'
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageCopyrightWarning
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onEditPageCopyrightWarning( Title $title, &$msg ) {
 	}
@@ -75,7 +75,7 @@ class Hooks {
 	 * @param bool &$result whether pages in this namespace are movable.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/NamespaceIsMovable
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onNamespaceIsMovable( $index, &$result ) {
 	}
@@ -86,7 +86,7 @@ class Hooks {
 	 * @param array &$nsList namespces [$nsID => $name] which will be searchable
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SearchableNamespaces
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onSearchableNamespaces( array &$nsList ) {
 	}
@@ -188,7 +188,7 @@ class Hooks {
 	 * @param string $constName name of the constant
 	 * @param string $constVal value of the constant
 	 * @throws MWException if they are not equal
-	 * @SuppressWarnings(PHPMD.EvalExpression)
+	 * @SuppressWarnings(PHPMD.EvalExpression) @codingStandardsIgnoreLine
 	 */
 	protected static function checkConst( $constName, $constVal ) {
 		if ( !defined( $constName ) ) {
@@ -220,7 +220,7 @@ class Hooks {
 	 * Do any extension configuration
 	 *
 	 * @param stdClass &$conf section from ns.conf
-	 * @SuppressWarnings(PHPMD.LongVariable)
+	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
 	 */
 	protected static function setupNSExtensions( &$conf ) {
 		global $wgVisualEditorAvailableNamespaces;
@@ -238,25 +238,11 @@ class Hooks {
 		$talkConst = $conf->id + 1;
 		$const = $conf->id;
 
-		if ( isset( $conf->hasSubpages ) && $conf->hasSubpages === true ) {
-			$wgNamespacesWithSubpages[$const] = true;
-		}
-
-		if ( isset( $conf->defaultSearch ) && $conf->defaultSearch === true ) {
-			$wgNamespacesToBeSearchedDefault[$const] = true;
-		}
-
-		if ( isset( $conf->useVE ) && $conf->useVE === true ) {
-			$wgVisualEditorAvailableNamespaces[$const] = true;
-		}
-
-		if ( isset( $conf->useSMW ) && $conf->useSMW === true ) {
-			$smwgNamespacesWithSemanticLinks[$const] = true;
-		}
-
-		if ( isset( $conf->userFunctions ) && $conf->userFunctions === true ) {
-			$wgUFAllowedNamespaces[$const] = true;
-		}
+		$wgNamespacesWithSubpages[$const]          = $conf->hasSubpages ?? false;
+		$wgNamespacesToBeSearchedDefault[$const]   = $conf->defaultSearch ?? false;
+		$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE ?? false;
+		$smwgNamespacesWithSemanticLinks[$const]   = $conf->useSMW ?? false;
+		$wgUFAllowedNamespaces[$const]             = $conf->userFunctions ?? false;
 
 		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
 			$wgNamespaceContentModels[$talkConst] = 'flow-board';
@@ -318,7 +304,7 @@ class Hooks {
 	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
-	 * @SuppressWarnings(PHPMD.LongVariable)
+	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
 	 */
 	public static function init() {
 		global $wgExtraNamespaces;
@@ -369,7 +355,7 @@ class Hooks {
 	 * @param FormOptions $opts for this request
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ChangesListSpecialPageQuery
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onChangesListSpecialPageQuery(
 		$name, &$tables, &$fields, &$conds, &$queryOptions, &$joinConds, $opts
