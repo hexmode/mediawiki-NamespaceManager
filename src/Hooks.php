@@ -35,7 +35,7 @@ class Hooks {
 	 */
 	public static function onLoadExtensionSchemaUpdates(
 		DatabaseUpdater $updater
-	) {
+	) :void {
 		$updater->addExtensionTable(
 			'namespace_mgr', __DIR__ . '/../sql/namespace_mgr.sql'
 		);
@@ -50,7 +50,7 @@ class Hooks {
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
-	public static function onEditPageTosSummary( Title $title, &$msg ) {
+	public static function onEditPageTosSummary( Title $title, &$msg ) :void {
 	}
 
 	/**
