@@ -261,13 +261,13 @@ class Hooks {
 		}
 
 		if ( isset( $conf->usePageTriage ) ) {
-            if ( $conf->usePageTriage ) {
-                $wgPageTriageNamespaces[] = $const;
-            } elseif ( in_array( $const, $wgPageTriageNamespaces ) ) {
-                unset( $wgPageTriageNamespaces[
-                    array_search( $const, $wgPageTriageNamespaces )
-                ] );
-            }
+			if ( $conf->usePageTriage ) {
+				$wgPageTriageNamespaces[] = $const;
+			} elseif ( in_array( $const, $wgPageTriageNamespaces ) ) {
+				unset( $wgPageTriageNamespaces[
+					array_search( $const, $wgPageTriageNamespaces )
+				] );
+			}
 		}
 
 		if ( isset( $conf->usePageImages ) && $conf->usePageImages ) {
