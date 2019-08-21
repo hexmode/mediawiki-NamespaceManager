@@ -313,7 +313,7 @@ class Hooks {
 	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
 	 */
 	public static function init() {
-		global $wgExtraNamespaces;
+		global $wgExtraNamespaces, $wgPageTriageNamespaces;
 		$nsConf = self::getNSConfig();
 		self::setupDefaults( $nsConf );
 
@@ -347,6 +347,7 @@ class Hooks {
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 		}
+		$wgPageTriageNamespaces = array_values( $wgPageTriageNamespaces );
 	}
 
 	/**
