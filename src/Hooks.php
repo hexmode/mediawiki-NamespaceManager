@@ -35,7 +35,7 @@ class Hooks {
 	 */
 	public static function onLoadExtensionSchemaUpdates(
 		DatabaseUpdater $updater
-	) :void {
+	) {
 		$updater->addExtensionTable(
 			'namespace_mgr', __DIR__ . '/../sql/namespace_mgr.sql'
 		);
@@ -50,7 +50,7 @@ class Hooks {
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
-	public static function onEditPageTosSummary( Title $title, &$msg ) :void {
+	public static function onEditPageTosSummary( Title $title, &$msg ) {
 	}
 
 	/**
@@ -238,11 +238,21 @@ class Hooks {
 		$talkConst = $conf->id + 1;
 		$const = $conf->id;
 
-		$wgNamespacesWithSubpages[$const]          = $conf->hasSubpages ?? false;
-		$wgNamespacesToBeSearchedDefault[$const]   = $conf->defaultSearch ?? false;
-		$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE ?? false;
-		$smwgNamespacesWithSemanticLinks[$const]   = $conf->useSMW ?? false;
-		$wgUFAllowedNamespaces[$const]             = $conf->userFunctions ?? false;
+		$wgNamespacesWithSubpages[$const]          = $conf->hasSubpages
+                                                   ? $conf->hasSubpages
+                                                   : false;
+		$wgNamespacesToBeSearchedDefault[$const]   = $conf->defaultSearch
+                                                   ? $conf->defaultSearch
+                                                   : false;
+		$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE
+                                                   ? $conf->useVE
+                                                   : false;
+		$smwgNamespacesWithSemanticLinks[$const]   = $conf->useSMW
+                                                   ? $conf->useSMW
+                                                   : false;
+		$wgUFAllowedNamespaces[$const]             = $conf->userFunctions
+                                                   ? $conf->userFunctions
+                                                   : false;
 
 		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
 			$wgNamespaceContentModels[$talkConst] = 'flow-board';

@@ -34,6 +34,6 @@ class Config extends GlobalVarConfig {
 	 * @return Config
 	 */
 	public static function newInstance() {
-		return new self();
+		return new self( 'NamespaceManager' );
 	}
 }

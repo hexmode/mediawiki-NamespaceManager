@@ -8,8 +8,8 @@
 	"url": "https://mediawiki.org/wiki/Extension:NamespaceManager",
 	"descriptionmsg": "nsmgr-desc",
 	"license-name": "GPL-3.0+",
-	"config_prefix": "NamespaceManager",
 	"config": {
+		"_prefix": 	"NamespaceManager",
 		"MapFile": {
 			"value": "ns.json"
 		}
@@ -55,5 +55,5 @@
 	},
 	"callback": "MediaWiki\\Extension\\NamespaceManager\\Hooks::init",
 	"load_composer_autoloader": true,
-	"manifest_version": 2
+	"manifest_version": 1
 }
