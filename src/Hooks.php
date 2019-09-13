@@ -226,6 +226,7 @@ class Hooks {
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCollectionArticleNamespaces;
 		global $wgPageTriageNamespaces;
+		global $wgPageTriageCurationModules;
 		global $smwgNamespacesWithSemanticLinks; // @codingStandardsIgnoreLine
 		global $egApprovedRevsNamespaces; // @codingStandardsIgnoreLine
 		global $wgNamespaceContentModels;
@@ -239,20 +240,20 @@ class Hooks {
 		$const = $conf->id;
 
 		$wgNamespacesWithSubpages[$const]          = $conf->hasSubpages
-                                                   ? $conf->hasSubpages
-                                                   : false;
+												   ? $conf->hasSubpages
+												   : false;
 		$wgNamespacesToBeSearchedDefault[$const]   = $conf->defaultSearch
-                                                   ? $conf->defaultSearch
-                                                   : false;
+												   ? $conf->defaultSearch
+												   : false;
 		$wgVisualEditorAvailableNamespaces[$const] = $conf->useVE
-                                                   ? $conf->useVE
-                                                   : false;
+												   ? $conf->useVE
+												   : false;
 		$smwgNamespacesWithSemanticLinks[$const]   = $conf->useSMW
-                                                   ? $conf->useSMW
-                                                   : false;
+												   ? $conf->useSMW
+												   : false;
 		$wgUFAllowedNamespaces[$const]             = $conf->userFunctions
-                                                   ? $conf->userFunctions
-                                                   : false;
+												   ? $conf->userFunctions
+												   : false;
 
 		if ( isset( $conf->useFlowForTalk ) && $conf->useFlowForTalk ) {
 			$wgNamespaceContentModels[$talkConst] = 'flow-board';
@@ -323,7 +324,7 @@ class Hooks {
 	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
 	 */
 	public static function init() {
-		global $wgExtraNamespaces, $wgPageTriageNamespaces;
+		global $wgExtraNamespaces, $wgPageTriageNamespaces, $wgPageTriageCurationModules;
 		$nsConf = self::getNSConfig();
 		self::setupDefaults( $nsConf );
 
@@ -358,6 +359,9 @@ class Hooks {
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 		}
 		$wgPageTriageNamespaces = array_values( $wgPageTriageNamespaces );
+		foreach( array_keys( $wgPageTriageCurationModules ) as $module ) {
+			$wgPageTriageCurationModules[$module]['namespace'] = $wgPageTriageNamespaces;
+		}
 	}
 
 	/**
