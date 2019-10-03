@@ -238,18 +238,19 @@ class Hooks {
 	 * @return void
 	 */
 	protected static function setupNSExtensions( &$conf ) {
-		global $wgVisualEditorAvailableNamespaces;
-		global $wgCollectionArticleNamespaces;
-		global $wgPageTriageNamespaces;
-		global $wgPageTriageCurationModules;
-		global $smwgNamespacesWithSemanticLinks; // @codingStandardsIgnoreLine
 		global $egApprovedRevsNamespaces; // @codingStandardsIgnoreLine
-		global $wgNamespaceContentModels;
-		global $wgPageImagesNamespaces;
+		global $smwgNamespacesWithSemanticLinks; // @codingStandardsIgnoreLine
+		global $wgCollectionArticleNamespaces;
 		global $wgContentNamespaces;
+		global $wgNamespaceContentModels;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
+		global $wgPageFormAutoeditNamespaces;
+		global $wgPageImagesNamespaces;
+		global $wgPageTriageCurationModules;
+		global $wgPageTriageNamespaces;
 		global $wgUFAllowedNamespaces;
+		global $wgVisualEditorAvailableNamespaces;
 
 		$talkConst = $conf->id + 1;
 		$const = $conf->id;
@@ -407,7 +408,8 @@ class Hooks {
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onChangesListSpecialPageQuery(
-		$name, &$tables, &$fields, &$conds, &$queryOptions, &$joinConds, $opts
+		$name, array &$tables, array &$fields, array &$conds, array &$queryOptions,
+		array &$joinConds, FormOptions $opts
 	) {
 		global $wgNamespaceHideFromRC;
 
