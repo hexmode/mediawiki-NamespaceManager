@@ -32,6 +32,7 @@ class Hooks {
 	 * Schema initialization and updating
 	 *
 	 * @param DatabaseUpdater $updater to manage updates
+	 * @return void
 	 */
 	public static function onLoadExtensionSchemaUpdates(
 		DatabaseUpdater $updater
@@ -46,6 +47,7 @@ class Hooks {
 	 *
 	 * @param Title $title of page being edited
 	 * @param string &$msg message name, defaults to editpage-tos-summary
+	 * @return void
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageTosSummary
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
@@ -61,6 +63,7 @@ class Hooks {
 	 * @param string &$msg message name, defaults to editpage-tos-summary
 	 *                      Default is either 'copyrightwarning' or
 	 *                      'copyrightwarning2'
+	 * @return void
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/EditPageCopyrightWarning
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
@@ -73,6 +76,7 @@ class Hooks {
 	 *
 	 * @param int $index the index of the namespace being checked.
 	 * @param bool &$result whether pages in this namespace are movable.
+	 * @return void
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/NamespaceIsMovable
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
@@ -86,6 +90,7 @@ class Hooks {
 	 * @param array &$nsList namespces [$nsID => $name] which will be searchable
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SearchableNamespaces
+	 * @return void
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
 	 */
 	public static function onSearchableNamespaces( array &$nsList ) {
@@ -116,6 +121,12 @@ class Hooks {
 		return $nsConfig;
 	}
 
+	/**
+	 * @param int $namespace
+	 * @param string $perm
+	 * @param string $group
+	 * @return void
+	 */
 	private static function setNSPermIfUnset(
 		$namespace, $perm = 'read', $group = '*'
 	) {
@@ -131,6 +142,7 @@ class Hooks {
 	 *
 	 * @param string $adminGroup name of the "super user" group
 	 * @param stdClass $conf section from ns.conf
+	 * @return void
 	 */
 	protected static function secureNS( $adminGroup, $conf ) {
 		global $wgNamespacePermissionLockdown;
@@ -186,7 +198,8 @@ class Hooks {
 	 * Check the value of the constant
 	 *
 	 * @param string $constName name of the constant
-	 * @param string $constVal value of the constant
+	 * @param string|int $constVal value of the constant
+	 * @return void
 	 * @throws MWException if they are not equal
 	 * @SuppressWarnings(PHPMD.EvalExpression) @codingStandardsIgnoreLine
 	 */
@@ -204,6 +217,7 @@ class Hooks {
 	 * Set up any aliases
 	 *
 	 * @param stdClass $conf section from ns.conf
+	 * @return void
 	 */
 	protected static function setupAliases( $conf ) {
 		global $wgNamespaceAliases;
@@ -221,6 +235,7 @@ class Hooks {
 	 *
 	 * @param stdClass &$conf section from ns.conf
 	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
+	 * @return void
 	 */
 	protected static function setupNSExtensions( &$conf ) {
 		global $wgVisualEditorAvailableNamespaces;
@@ -286,9 +301,14 @@ class Hooks {
 		}
 	}
 
+	/** @param array $defaults */
 	private static $defaults;
+	/** @param array $defaults */
 	private static $lockdownDefaults;
 
+	/**
+	 * @return void
+	 */
 	private static function setupDefaults( stdClass &$nsConf ) {
 		if ( isset( $nsConf->defaults ) ) {
 			# We want to make sure we aren't overwriting these two
@@ -304,6 +324,9 @@ class Hooks {
 		}
 	}
 
+	/**
+	 * @return void
+	 */
 	private static function setDefaults( stdClass &$conf ) {
 		foreach ( self::$defaults as $key => $value ) {
 			if ( !isset( $conf->$key ) ) {
@@ -312,6 +335,9 @@ class Hooks {
 		}
 	}
 
+	/**
+	 * @return void
+	 */
 	private static function setLockdownDefaults( stdClass &$conf ) {
 		if ( isset( $conf->lockdown ) && $conf->lockdown === true ) {
 			$conf->lockdown = self::$lockdownDefaults;
@@ -321,6 +347,7 @@ class Hooks {
 	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
+	 * @return void
 	 * @SuppressWarnings(PHPMD.LongVariable) @codingStandardsIgnoreLine
 	 */
 	public static function init() {
@@ -337,8 +364,6 @@ class Hooks {
 			}
 
 			if ( !( isset( $conf->id ) && isset( $conf->constant ) ) ) {
-				$config = Config::newInstance();
-				$nsConf = $config->get( Config::MAP_FILE );
 				throw new MWException(
 					"$nsConf needs a constant name and an id set for '$nsName'."
 				);
@@ -359,7 +384,7 @@ class Hooks {
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 		}
 		$wgPageTriageNamespaces = array_values( $wgPageTriageNamespaces );
-		foreach( array_keys( $wgPageTriageCurationModules ) as $module ) {
+		foreach ( array_keys( $wgPageTriageCurationModules ) as $module ) {
 			$wgPageTriageCurationModules[$module]['namespace'] = $wgPageTriageNamespaces;
 		}
 	}
@@ -376,6 +401,7 @@ class Hooks {
 	 * @param array &$queryOptions for the database request
 	 * @param array &$joinConds for the tables
 	 * @param FormOptions $opts for this request
+	 * @return void
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ChangesListSpecialPageQuery
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) @codingStandardsIgnoreLine
