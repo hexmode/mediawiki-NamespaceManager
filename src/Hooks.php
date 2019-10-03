@@ -245,7 +245,7 @@ class Hooks {
 		global $wgNamespaceContentModels;
 		global $wgNamespacesToBeSearchedDefault;
 		global $wgNamespacesWithSubpages;
-		global $wgPageFormAutoeditNamespaces;
+		global $wgPageFormsAutoeditNamespaces;
 		global $wgPageImagesNamespaces;
 		global $wgPageTriageCurationModules;
 		global $wgPageTriageNamespaces;
@@ -299,6 +299,10 @@ class Hooks {
 
 		if ( isset( $conf->usePageImages ) && $conf->usePageImages ) {
 			$wgPageImagesNamespaces[] = $const;
+		}
+
+		if ( isset( $conf->autoEdit ) && $conf->autoEdit ) {
+			$wgPageFormsAutoeditNamespaces[] = $const;
 		}
 	}
 
