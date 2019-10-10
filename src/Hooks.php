@@ -24,6 +24,7 @@ namespace MediaWiki\Extension\NamespaceManager;
 
 use DatabaseUpdater;
 use MWException;
+use FormOptions;
 use stdClass;
 use Title;
 
