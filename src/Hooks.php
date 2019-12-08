@@ -165,8 +165,8 @@ class Hooks {
 			$wgGroupPermissions['*'][$permission] = false;
 			$wgGroupPermissions[ $group ][$permission] = true;
 			$wgGroupPermissions[ $adminGroup ][$permission] = true;
-			$wgNamespaceProtection[ $const ][] = $permission;
-			$wgNamespaceProtection[ $talkConst ][] = $permission;
+			$wgNamespaceProtection[ $const ] = $permission;
+			$wgNamespaceProtection[ $talkConst ] = $permission;
 			$wgNamespaceHideFromRC[] = $const;
 			$wgNamespaceHideFromRC[] = $talkConst;
 			if ( isset( $conf->lockdown ) ) {
@@ -389,9 +389,14 @@ class Hooks {
 			$wgExtraNamespaces[ $const ] = $nsName;
 			$wgExtraNamespaces[ $talkConst ] = "{$nsName}_talk";
 		}
-		$wgPageTriageNamespaces = array_values( $wgPageTriageNamespaces );
-		foreach ( array_keys( $wgPageTriageCurationModules ) as $module ) {
-			$wgPageTriageCurationModules[$module]['namespace'] = $wgPageTriageNamespaces;
+		$wgPageTriageNamespaces = is_array( $wgPageTriageNamespaces )
+                                ? array_values( $wgPageTriageNamespaces )
+                                : [];
+		if ( is_array( $wgPageTriageCurationModules ) ) {
+			foreach ( array_keys( $wgPageTriageCurationModules ) as $module ) {
+				$wgPageTriageCurationModules[$module]['namespace']
+					= $wgPageTriageNamespaces;
+			}
 		}
 	}
 

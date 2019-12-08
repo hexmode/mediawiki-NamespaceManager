@@ -10,9 +10,7 @@
 	"license-name": "GPL-3.0+",
 	"config": {
 		"_prefix": 	"NamespaceManager",
-		"MapFile": {
-			"value": "ns.json"
-		}
+		"MapFile": "ns.json"
 	},
 	"requires": {
 		"MediaWiki": ">= 1.27.0"
