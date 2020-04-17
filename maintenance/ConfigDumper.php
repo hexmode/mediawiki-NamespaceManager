@@ -139,6 +139,7 @@ class ConfigDumper extends Maintenance {
 		global $wgVisualEditorAvailableNamespaces;
 		global $wgCirrusSearchNamespaceWeights;
 		global $egApprovedRevsNamespaces;
+		global $egApprovedRevsEnabledNamespaces;
 
 		$this->adminGroup = null;
 
@@ -184,7 +185,10 @@ class ConfigDumper extends Maintenance {
 				$this->nsConf->$name->useCollection = true;
 			}
 
-			if ( isset( $egApprovedRevsNamespaces[$const] ) ) {
+			if (
+				isset( $egApprovedRevsNamespaces[$const] ) ||
+				( isset( $egApprovedRevsEnabledNamespaces[$const] ) && $egApprovedRevsEnabledNamespaces[$cont] )
+			) {
 				$this->nsConf->$name->useApprovedRevs = true;
 			}
 

@@ -106,19 +106,25 @@ class Hooks {
 		$config = Config::newInstance();
 		$nsConf = $config->get( Config::MAP_FILE );
 
+		$nsConfig = false;
 		if ( file_exists( $nsConf ) ) {
 			if ( is_readable( $nsConf ) ) {
 				$nsConfig = json_decode( file_get_contents( $nsConf ) );
-			} else {
-				throw new MWException(
-					"Can't read namespace config: $nsConfig."
-				);
 			}
 		} else {
 			$nsConfig = new stdClass;
-			$nsConfig->globalAdmin = "sysop";
 		}
 
+		if ( $nsConfig === false ) {
+			throw new MWException(
+				"Can't read namespace config: $nsConfig."
+			);
+		}
+		if ( $nsConfig === null ) {
+			throw new MWException(
+				"JSON not well-formed: $nsConfig."
+			);
+		}
 		return $nsConfig;
 	}
 
@@ -240,6 +246,7 @@ class Hooks {
 	 */
 	protected static function setupNSExtensions( &$conf ) {
 		global $egApprovedRevsNamespaces; // @codingStandardsIgnoreLine
+		global $egApprovedRevsEnabledNamespaces; // @codingStandardsIgnoreLine
 		global $smwgNamespacesWithSemanticLinks; // @codingStandardsIgnoreLine
 		global $wgCollectionArticleNamespaces;
 		global $wgContentNamespaces;
@@ -284,8 +291,11 @@ class Hooks {
 			$wgCollectionArticleNamespaces[] = $const;
 		}
 
-		if ( isset( $conf->useApprovedRevs ) && $conf->useApprovedRevs ) {
-			$egApprovedRevsNamespaces[] = $const;
+		if ( isset( $conf->useApprovedRevs ) ) {
+			$egApprovedRevsEnabledNamespaces[$const] = $conf->useApprovedRevs;
+			if ( $conf->useApprovedRevs ) {
+				$egApprovedRevsNamespaces[] = $const;
+			}
 		}
 
 		if ( isset( $conf->usePageTriage ) ) {
@@ -351,6 +361,34 @@ class Hooks {
 	}
 
 	/**
+	 * Reset defaults so everything happens in here.
+	 */
+	protected static function maybeResetGlobals( stdClass &$conf ) {
+		if ( isset( $conf->resetGlobals ) ) {
+			if ( isset( $conf->resetGlobals ) ? $conf->resetGlobals : false ) {
+				global $egApprovedRevsEnabledNamespaces, $egApprovedRevsNamespaces;
+				$egApprovedRevsEnabledNamespaces = [];
+				if ( isset( $egApprovedRevsNamespaces ) ) {
+					$egApprovedRevsNamespaces = [];
+				}
+			}
+			unset( $conf->resetGlobals );
+		}
+	}
+
+	/**
+	 * Get the global admin
+	 */
+	protected static function getGlobalAdmin( stdClass &$conf ) {
+		$admin = "sysop";
+		if ( isset( $conf->globalAdmin ) ) {
+			$admin = $conf->globalAdmin;
+			unset( $conf->globalAdmin );
+		}
+		return $admin;
+	}
+
+	/**
 	 * Initialize everything.  Called after extensions are
 	 * loaded. Sets up namespaces as desired.
 	 * @return void
@@ -361,14 +399,9 @@ class Hooks {
 		$nsConf = self::getNSConfig();
 		self::setupDefaults( $nsConf );
 
-		if ( !isset( $nsConf->globalAdmin ) ) {
-			throw new MWException( "A Global Admin group needs to be set." );
-		}
+		self::maybeResetGlobals( $nsConf );
+		$globalAdmin = self::getGlobalAdmin( $nsConf );
 		foreach ( $nsConf as $nsName => $conf ) {
-			if ( $nsName == "globalAdmin" ) {
-				continue;
-			}
-
 			if ( !( isset( $conf->id ) && isset( $conf->constant ) ) ) {
 				throw new MWException(
 					"$nsConf needs a constant name and an id set for '$nsName'."
@@ -376,7 +409,7 @@ class Hooks {
 			}
 			self::setDefaults( $conf );
 			self::setLockdownDefaults( $conf );
-			self::secureNS( $nsConf->globalAdmin, $conf );
+			self::secureNS( $globalAdmin, $conf );
 
 			$talkConstName = $conf->constant . "_TALK";
 			$talkConst = $conf->id + 1;
