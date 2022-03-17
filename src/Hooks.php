@@ -23,8 +23,9 @@
 namespace MediaWiki\Extension\NamespaceManager;
 
 use DatabaseUpdater;
-use MWException;
 use FormOptions;
+use JsonException;
+use MWException;
 use stdClass;
 use Title;
 
@@ -109,7 +110,15 @@ class Hooks {
 		$nsConfig = false;
 		if ( file_exists( $nsConf ) ) {
 			if ( is_readable( $nsConf ) ) {
-				$nsConfig = json_decode( file_get_contents( $nsConf ) );
+				try {
+					$nsConfig = json_decode(
+						file_get_contents( $nsConf ), false, 512, JSON_THROW_ON_ERROR
+					);
+				} catch ( JsonException $e ) {
+					// At this point MW error handling is not set up.
+					echo wfMessage( 'nsmgr-json-exception' )->params( $e->getMessage(), $nsConf )->plain();
+					exit;
+				}
 			}
 		} else {
 			$nsConfig = new stdClass;

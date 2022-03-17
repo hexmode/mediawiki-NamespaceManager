@@ -1,9 +1,10 @@
 {
-    "@metadata": {
+	"@metadata": {
 	"authors": [
-	    "Mark A. Hershberger"
+		"Mark A. Hershberger"
 	]
-    },
-    "nsmgr-extensionname": "NamespaceManager",
-    "nsmgr-desc": "Provide a special page to handle namespaces."
+	},
+	"nsmgr-extensionname": "NamespaceManager",
+	"nsmgr-desc": "Provide a special page to handle namespaces.",
+	"nsmgr-json-exception": "Got '$1' while parsing $2"
 }
