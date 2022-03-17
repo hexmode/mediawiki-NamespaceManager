@@ -166,6 +166,7 @@ class Hooks {
 		global $wgNamespaceHideFromRC;
 		global $wgNamespaceProtection;
 		global $wgNonincludableNamespaces;
+		global $wgGrantPermissions;
 
 		$const = $conf->id;
 		$talkConst = $conf->id + 1;
@@ -180,6 +181,7 @@ class Hooks {
 			$wgGroupPermissions['*'][$permission] = false;
 			$wgGroupPermissions[ $group ][$permission] = true;
 			$wgGroupPermissions[ $adminGroup ][$permission] = true;
+			$wgGrantPermissions[ 'editprotected' ][$permission] = true;
 			$wgNamespaceProtection[ $const ] = $permission;
 			$wgNamespaceProtection[ $talkConst ] = $permission;
 			$wgNamespaceHideFromRC[] = $const;
